@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "method": "monotone_logit_v1",
+  "profile_id": "san pedro-2026-07-15-v1-22ac15342c",
+  "site": "San Pedro",
+  "status": "experimental_una_campana",
+  "training_year": 2026,
+  "training_through": "2026-07-15",
+  "available_from": "2026-07-15",
+  "season_complete": false,
+  "first_interval_excluded": true,
+  "parameters": {
+    "offset": 0.5500000000000003,
+    "slope": 0.625
+  },
+  "fit": {
+    "n_observations": 12,
+    "n_intervals": 11,
+    "observed_window_total_units": 3773.333333333333,
+    "rmse_base_units": 347.64877379045873,
+    "rmse_calibrated_units": 208.3298005508776,
+    "weighted_mse_base": 2.4671056876498914,
+    "weighted_mse_calibrated": 0.8859498661319585,
+    "regularization": 0.05,
+    "nuisance_scale_base": 3773.333333333333,
+    "nuisance_scale_calibrated": 3773.333333333333,
+    "parameter_at_bound": false
+  },
+  "observations_start": "2026-02-01",
+  "initial_zero_reference": true,
+  "model_fingerprint": "ce9dad1f1db8adac21fa2d7535fd770d63efba488f04248bae838a6244fa45ee",
+  "model_parameters": {
+    "cobertura_pct": 17.117654787448153,
+    "w_max": 21.835296520312887,
+    "umbral_termoinhibicion": 24.554776252844984,
+    "umbral_choque_hidrico": 45.0,
+    "exponente_kr": 0.0,
+    "latitud": -33.7328,
+    "longitud": -59.7965,
+    "latencia_jd": 25,
+    "techo_choque": 0.75,
+    "calentamiento_suelo": 0.0,
+    "umbral_primer_pico": 0.2,
+    "t_base": 2.0,
+    "t_opt": 20.0,
+    "t_crit": 30.0,
+    "tt_control": 600.0,
+    "tt_limite": 800.0,
+    "alpha_hidrica": 0.05239929751806027,
+    "pendiente_termohidrica": 0.36599312676568485,
+    "ventana_termohidrica": 7,
+    "escala_lluvia_th": 45.0,
+    "k_cohorte": 0.4302565796601996
+  },
+  "seasonal_reference": {
+    "include_patterns": [
+      "san pedro"
+    ],
+    "excluded_years": [
+      "2010",
+      "2015"
+    ],
+    "scope": "Referencia local San Pedro 2025; una campaña",
+    "n_campaigns": 1,
+    "campaigns": "emrel sp 2025 san pedro.xlsx"
+  },
+  "source": {
+    "uploaded_filename": "valida (1) (6).xlsx",
+    "uploaded_sha256": "94a26e5da58c0fb95a6220c73a83bfc180a8f71880d6163aa92d3e4b89d1fe2a",
+    "original_file": "san_pedro_2026_original.xlsx",
+    "sheet": "Hoja1",
+    "site_assigned_by_user": "San Pedro",
+    "units": "plantas (escala del adjunto; superficie no informada)",
+    "density_units_confirmed": false,
+    "initial_zero_reference": "2026-02-01",
+    "base_model_calibration_campaigns": [
+      2025,
+      2026
+    ],
+    "base_model_uses_training_season": true,
+    "base_model_version": "SP-FINAL-2025-2026",
+    "weather_repository": "https://github.com/PREDWEEM/lolium_sanpedro2026",
+    "weather_commit": "e1932343c42b29a666bb64de2eba903fe4bcf3b0",
+    "weather_source_path": "meteo_daily.csv",
+    "weather_source_sha256": "f8b7189060df43c9895488da9f44b6e88305915265a5895e876812fa672ae318",
+    "weather_start": "2026-01-01",
+    "weather_end": "2026-07-15",
+    "weather_rows": 196,
+    "weather_nature": "SIGA–INTA A872890 y puente histórico provisional ECMWF IFS",
+    "weather_station": "A872890",
+    "weather_coordinates": {
+      "latitude": -33.7328,
+      "longitude": -59.7965
+    },
+    "model_coordinates": {
+      "latitude": -33.7328,
+      "longitude": -59.7965
+    },
+    "validation_cutoffs": [
+      "2026-05-01",
+      "2026-05-16",
+      "2026-06-01",
+      "2026-06-15",
+      "2026-07-01"
+    ],
+    "observations_file": "san_pedro_2026_counts.csv",
+    "observations_sha256": "85e3ba85c870f8fe422509bea887a327d0cd4bfbbfcb046d5a781f852be92a1c",
+    "weather_file": "san_pedro_2026_weather.csv",
+    "weather_sha256": "489acd383bd73d5f03105dfd251542cd5df8564b1679c993a757323e9ef35d1b",
+    "weather_types": {
+      "Observado": 193,
+      "Provisional": 3
+    },
+    "observed_total_units": 3773.333333333333,
+    "replicate_count": null,
+    "replicate_conversion_factor": null
+  },
+  "validation": {
+    "kind": "evaluacion_retrospectiva_capa_con_motor_precalibrado_2025_2026",
+    "independent_season": false,
+    "base_model_uses_training_season": true,
+    "n_intervals": 5,
+    "note": "Ajuste con datos hasta cada corte y evaluación del siguiente intervalo. El motor base ya fue calibrado con 2025 y 2026: esta evaluación de la capa adicional no es independiente. Se utiliza SIGA y ECMWF realizado, no la emisión de pronóstico disponible en cada corte. No demuestra transferencia a otra campaña ni precisión operativa a siete días.",
+    "rmse_base_units": 17.74919829305358,
+    "rmse_calibrated_units": 18.97413688697005,
+    "intervals_improved": 0
+  },
+  "limitations": [
+    "Una sola campaña incompleta. No se estima ni transfiere un total estacional.",
+    "El registro inicial de cero del 2026-02-01 delimita el primer intervalo; no se infiere ausencia de emergencia en fechas anteriores.",
+    "Cobertura de 17.1177 % y Wmax de 21.8353 mm son supuestos de la configuración operativa; el archivo no informa manejo ni cobertura.",
+    "El archivo fecha + plantas no informa superficie ni repeticiones. Se mantiene su escala sin convertir a plantas/m². Se utiliza un piso de ponderación común, no un error de muestreo medido.",
+    "Se conserva SP-FINAL-2025-2026: interacción termohídrica continua y reservorio causal de cohorte con parámetros originales congelados.",
+    "La referencia local sólo incluye San Pedro 2025; sus percentiles no caracterizan robustamente la variabilidad anual. El motor base ya fue calibrado con 2025 y 2026; los datos no constituyen evidencia independiente.",
+    "La meteorología del ajuste incluye 193 días SIGA observados y tres provisionales ECMWF (9–11 de junio); no se ocultan esos huecos de estación.",
+    "La transformación no crea cohortes en fechas bloqueadas por el motor biofísico.",
+    "Un parámetro en su límite indica que persisten diferencias estructurales.",
+    "El ajuste no reduce automáticamente la incertidumbre de asimilación.",
+    "Los gráficos de la campaña de ajuste son retrospectivos, no predicciones independientes."
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "uploaded_filename": "valida (1) (6).xlsx",
+  "uploaded_sha256": "94a26e5da58c0fb95a6220c73a83bfc180a8f71880d6163aa92d3e4b89d1fe2a",
+  "original_file": "san_pedro_2026_original.xlsx",
+  "sheet": "Hoja1",
+  "site_assigned_by_user": "San Pedro",
+  "units": "plantas (escala del adjunto; superficie no informada)",
+  "density_units_confirmed": false,
+  "initial_zero_reference": "2026-02-01",
+  "base_model_calibration_campaigns": [
+    2025,
+    2026
+  ],
+  "base_model_uses_training_season": true,
+  "base_model_version": "SP-FINAL-2025-2026",
+  "weather_repository": "https://github.com/PREDWEEM/lolium_sanpedro2026",
+  "weather_commit": "e1932343c42b29a666bb64de2eba903fe4bcf3b0",
+  "weather_source_path": "meteo_daily.csv",
+  "weather_source_sha256": "f8b7189060df43c9895488da9f44b6e88305915265a5895e876812fa672ae318",
+  "weather_start": "2026-01-01",
+  "weather_end": "2026-07-15",
+  "weather_rows": 196,
+  "weather_nature": "SIGA–INTA A872890 y puente histórico provisional ECMWF IFS",
+  "weather_station": "A872890",
+  "weather_coordinates": {
+    "latitude": -33.7328,
+    "longitude": -59.7965
+  },
+  "model_coordinates": {
+    "latitude": -33.7328,
+    "longitude": -59.7965
+  },
+  "validation_cutoffs": [
+    "2026-05-01",
+    "2026-05-16",
+    "2026-06-01",
+    "2026-06-15",
+    "2026-07-01"
+  ]
+}
