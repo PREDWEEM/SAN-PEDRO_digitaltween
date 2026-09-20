@@ -30,8 +30,10 @@ reservorio de cohorte. No utiliza el core histórico sin parche como modelo fina
 La referencia independiente `tests/fixtures/san_pedro_original.py` contiene
 las funciones extraídas del core parcheado y copias de los auxiliares originales.
 Las pruebas comparan ANN, ET0, agua superficial, factor hídrico, interacción
-termohídrica, reservorio, flujo, acumulada y reloj térmico, con distintas
-coberturas, capacidades hídricas y exponentes Kr.
+termohídrica, reservorio, flujo, acumulada bruta y reloj térmico, con distintas
+coberturas, capacidades hídricas y exponentes Kr. La normalización de la
+acumulada se revisa explícitamente en el gemelo y se verifica por conservación
+de masa y causalidad, sin exigir equivalencia con el denominador original.
 
 - ANN de cuatro entradas: día juliano, TMAX, TMIN y precipitación del aire.
 - Cobertura efectiva 17,117654787448153 %; Wmax 21,835296520312887 mm; Kr=0.
@@ -51,9 +53,34 @@ el diagnóstico de suelo, manteniendo las entradas neuronales originales.
 
 ## Referencia estacional y antecedentes del ajuste
 
-El clasificador no se modifica. Se selecciona la campaña local
-`emrel sp 2025 san pedro.xlsx` mediante el filtro `san pedro`, excluyendo 2010 y
-2015. Una sola campaña no estima robustamente la variabilidad entre años.
+El clasificador no se modifica. Se extrae exclusivamente la curva procesada
+`emrel sp 2025 san pedro.xlsx` y se añade la referencia 2026 a partir de los
+conteos originales. Se aceptan ambas campañas como completas por declaración
+del usuario del 20/09/2026. Esto no añade muestreos ni datos meteorológicos.
+La representación 2025 procede de flujos diarios ya interpolados; la de 2026
+conserva exactamente el acumulado de los conteos por intervalos y luego lo
+interpola. No se dispone de conteos ni meteorología originales de 2025 en este
+repositorio. No se convierten unidades ni se equipara la precisión temporal
+de ambas fuentes. Sus hashes, métodos y límites se registran en
+`data/reference/san_pedro_2025_2026.json`.
+
+La combinación descriptiva utiliza el mismo peso por campaña y rango mínimo–máximo,
+sin presentarlo como intervalo de confianza. Antes del 01/02 la referencia
+2026 queda vacía; después del cierre declarado se mantiene en uno. Sólo se
+muestran referencias cuyo cierre es anterior o igual a la fecha de corte.
+Su disponibilidad por fecha es una salvaguarda de la presentación, no una
+reconstrucción de los pronósticos efectivamente emitidos en aquel momento.
+
+La nueva acumulada normalizada es la masa liberada del reservorio inicial
+unitario de SP-FINAL. La reserva posterior al flujo es `Reserva_Cohorte - EMERREL`.
+Ambas fracciones suman uno, incluso antes del primer pulso. Se elimina el
+anclaje al calendario histórico y la división por el total de una serie parcial.
+El estado base responde causalmente a la meteorología. Las curvas históricas
+son contexto descriptivo; no entran en ese denominador. La cohorte es un
+potencial modelado, no una medición del banco ni una garantía de liberación
+completa durante el año. El remanente biofísico base se distingue del remanente
+Twin corregido por calibración/asimilación. Los pesos y parámetros fisiológicos
+permanecen exactamente iguales.
 
 El motor fuente ya fue calibrado conjuntamente con las campañas 2025 y 2026.
 Los registros del adjunto entre el 21/02 y el 01/07 coinciden con los diez
@@ -80,6 +107,10 @@ fraccionarios. Los diagnósticos se rotulan en unidades del adjunto.
 
 Excel original, conteos, meteorología fija, hashes y revisión fuente quedan
 registrados en `data/calibration/san_pedro_2026_source.json` y en el perfil JSON.
-El fingerprint del modelo incluye pesos, core, referencia estacional, módulo
-fisiológico y JSON de parámetros congelados. Las actualizaciones meteorológicas
+El fingerprint del modelo incluye pesos, core, código y archivos de las
+referencias estacionales, módulo fisiológico y JSON de parámetros congelados.
+La capa adicional 2026 se reajusta a la nueva normalización: offset 0,50,
+slope 0,60 (límite inferior). Los diagnósticos se regeneran con los mismos
+datos y cortes; esta revisión no demuestra mejora predictiva.
+Las actualizaciones meteorológicas
 diarias no modifican la copia utilizada en el ajuste.

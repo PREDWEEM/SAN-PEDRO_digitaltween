@@ -1,34 +1,35 @@
 {
   "schema_version": 1,
   "method": "monotone_logit_v1",
-  "profile_id": "san pedro-2026-07-15-v1-22ac15342c",
+  "profile_id": "san pedro-2026-07-15-v1-d78d680300",
   "site": "San Pedro",
   "status": "experimental_una_campana",
   "training_year": 2026,
   "training_through": "2026-07-15",
   "available_from": "2026-07-15",
-  "season_complete": false,
+  "season_complete": true,
   "first_interval_excluded": true,
   "parameters": {
-    "offset": 0.5500000000000003,
-    "slope": 0.625
+    "offset": 0.5,
+    "slope": 0.6
   },
   "fit": {
     "n_observations": 12,
     "n_intervals": 11,
     "observed_window_total_units": 3773.333333333333,
-    "rmse_base_units": 347.64877379045873,
-    "rmse_calibrated_units": 208.3298005508776,
-    "weighted_mse_base": 2.4671056876498914,
-    "weighted_mse_calibrated": 0.8859498661319585,
+    "rmse_base_units": 347.6487737904588,
+    "rmse_calibrated_units": 205.41739227431725,
+    "weighted_mse_base": 2.4671056876498922,
+    "weighted_mse_calibrated": 0.861352213308868,
     "regularization": 0.05,
-    "nuisance_scale_base": 3773.333333333333,
-    "nuisance_scale_calibrated": 3773.333333333333,
-    "parameter_at_bound": false
+    "nuisance_scale_base": 3778.0741758672248,
+    "nuisance_scale_calibrated": 3814.929771684448,
+    "parameter_at_bound": true
   },
+  "season_complete_basis": "Declaración del usuario del 20/09/2026 para esta fuente exacta; el ajuste conserva sus intervalos y escala auxiliar.",
   "observations_start": "2026-02-01",
   "initial_zero_reference": true,
-  "model_fingerprint": "ce9dad1f1db8adac21fa2d7535fd770d63efba488f04248bae838a6244fa45ee",
+  "model_fingerprint": "7cdc04b0b583164e121f3d42a7b2cd32a5c5b0d1e5dcc5d2f34552ea6f252a4f",
   "model_parameters": {
     "cobertura_pct": 17.117654787448153,
     "w_max": 21.835296520312887,
@@ -60,9 +61,10 @@
       "2010",
       "2015"
     ],
-    "scope": "Referencia local San Pedro 2025; una campaña",
-    "n_campaigns": 1,
-    "campaigns": "emrel sp 2025 san pedro.xlsx"
+    "scope": "Referencias descriptivas completas San Pedro 2025 y 2026",
+    "normalization": "fracción del reservorio inicial modelado; referencias sin efecto sobre el denominador",
+    "n_campaigns": 2,
+    "campaigns": "2025, 2026"
   },
   "source": {
     "uploaded_filename": "valida (1) (6).xlsx",
@@ -121,17 +123,17 @@
     "base_model_uses_training_season": true,
     "n_intervals": 5,
     "note": "Ajuste con datos hasta cada corte y evaluación del siguiente intervalo. El motor base ya fue calibrado con 2025 y 2026: esta evaluación de la capa adicional no es independiente. Se utiliza SIGA y ECMWF realizado, no la emisión de pronóstico disponible en cada corte. No demuestra transferencia a otra campaña ni precisión operativa a siete días.",
-    "rmse_base_units": 17.74919829305358,
-    "rmse_calibrated_units": 18.97413688697005,
-    "intervals_improved": 0
+    "rmse_base_units": 17.12506135892318,
+    "rmse_calibrated_units": 17.128916028798002,
+    "intervals_improved": 3
   },
   "limitations": [
-    "Una sola campaña incompleta. No se estima ni transfiere un total estacional.",
+    "Campaña declarada completa por el usuario. La escala auxiliar del ajuste no se transfiere como potencial estacional del lote.",
     "El registro inicial de cero del 2026-02-01 delimita el primer intervalo; no se infiere ausencia de emergencia en fechas anteriores.",
     "Cobertura de 17.1177 % y Wmax de 21.8353 mm son supuestos de la configuración operativa; el archivo no informa manejo ni cobertura.",
     "El archivo fecha + plantas no informa superficie ni repeticiones. Se mantiene su escala sin convertir a plantas/m². Se utiliza un piso de ponderación común, no un error de muestreo medido.",
     "Se conserva SP-FINAL-2025-2026: interacción termohídrica continua y reservorio causal de cohorte con parámetros originales congelados.",
-    "La referencia local sólo incluye San Pedro 2025; sus percentiles no caracterizan robustamente la variabilidad anual. El motor base ya fue calibrado con 2025 y 2026; los datos no constituyen evidencia independiente.",
+    "Referencias descriptivas 2025 y 2026: rango observado, no intervalo de confianza. El motor base ya fue calibrado con ambos años; los datos no constituyen evidencia independiente.",
     "La meteorología del ajuste incluye 193 días SIGA observados y tres provisionales ECMWF (9–11 de junio); no se ocultan esos huecos de estación.",
     "La transformación no crea cohortes en fechas bloqueadas por el motor biofísico.",
     "Un parámetro en su límite indica que persisten diferencias estructurales.",

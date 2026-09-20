@@ -70,14 +70,17 @@ def build_calibration(observations_path, weather_path, output_path, site="San Pe
         raise ValueError("La calibración histórica no admite filas de pronóstico.")
     model = PracticalANNModel.from_directory(ROOT / "models")
     reference = load_seasonal_reference(
-        ROOT / "models/modelo_clusters_k3.pkl", excluded_years=("2010", "2015"), include_patterns=("san pedro",),
+        ROOT / "data/reference/san_pedro_2025_2026.json", as_of=last_count,
     )
     parameters = ModelParameters(cobertura_pct=coverage, w_max=w_max)
 
     def simulate(cutoff, end=None):
         return run_predweem(
             weather.loc[weather["Fecha"] <= (end if end is not None else cutoff)],
-            model, parameters, normalization_as_of=cutoff, seasonal_reference=reference,
+            model, parameters, normalization_as_of=cutoff,
+            seasonal_reference=load_seasonal_reference(
+                ROOT / "data/reference/san_pedro_2025_2026.json", as_of=cutoff,
+            ),
         )
 
     trajectory = simulate(last_count)
@@ -153,7 +156,17 @@ def build_calibration(observations_path, weather_path, output_path, site="San Pe
         if initial_zero else
         "Primer conteo conservado pero excluido del ajuste: inicio del intervalo desconocido."
     )
+    complete_source = any(
+        item["year"] == last_count.year and item["complete"]
+        and item["source_sha256"] == sha256(observations_path.read_bytes()).hexdigest()
+        for item in reference.attrs["campaigns"]
+    )
     profile.update({
+        "season_complete": complete_source,
+        "season_complete_basis": (
+            "Declaración del usuario del 20/09/2026 para esta fuente exacta; el ajuste conserva sus intervalos y escala auxiliar."
+            if complete_source else "No consta confirmación de cierre completo para esta fuente."
+        ),
         "observations_start": first_date,
         "initial_zero_reference": initial_zero,
         "model_fingerprint": model_fingerprint(ROOT),
@@ -161,7 +174,8 @@ def build_calibration(observations_path, weather_path, output_path, site="San Pe
         "seasonal_reference": {
             "include_patterns": ["san pedro"],
             "excluded_years": ["2010", "2015"],
-            "scope": "Referencia local San Pedro 2025; una campaña",
+            "scope": "Referencias descriptivas completas San Pedro 2025 y 2026",
+            "normalization": "fracción del reservorio inicial modelado; referencias sin efecto sobre el denominador",
             "n_campaigns": int(reference["N_Campanas"].iloc[0]),
             "campaigns": reference["Campanas"].iloc[0],
         },
@@ -178,12 +192,13 @@ def build_calibration(observations_path, weather_path, output_path, site="San Pe
         },
         "validation": validation,
         "limitations": [
-            "Una sola campaña incompleta. No se estima ni transfiere un total estacional.",
+            ("Campaña declarada completa por el usuario. " if complete_source else "Campaña sin cierre confirmado. ")
+            + "La escala auxiliar del ajuste no se transfiere como potencial estacional del lote.",
             initial_note,
             f"Cobertura de {coverage:g} % y Wmax de {w_max:g} mm son supuestos de la configuración operativa; el archivo no informa manejo ni cobertura.",
             "El archivo fecha + plantas no informa superficie ni repeticiones. Se mantiene su escala sin convertir a plantas/m². Se utiliza un piso de ponderación común, no un error de muestreo medido.",
             "Se conserva SP-FINAL-2025-2026: interacción termohídrica continua y reservorio causal de cohorte con parámetros originales congelados.",
-            "La referencia local sólo incluye San Pedro 2025; sus percentiles no caracterizan robustamente la variabilidad anual. El motor base ya fue calibrado con 2025 y 2026; los datos no constituyen evidencia independiente.",
+            "Referencias descriptivas 2025 y 2026: rango observado, no intervalo de confianza. El motor base ya fue calibrado con ambos años; los datos no constituyen evidencia independiente.",
             "La meteorología del ajuste incluye 193 días SIGA observados y tres provisionales ECMWF (9–11 de junio); no se ocultan esos huecos de estación.",
             "La transformación no crea cohortes en fechas bloqueadas por el motor biofísico.",
             "Un parámetro en su límite indica que persisten diferencias estructurales.",

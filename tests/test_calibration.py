@@ -137,7 +137,7 @@ def real_data():
     weather = pd.read_csv(DATA / "san_pedro_2026_weather.csv")
     model = PracticalANNModel.from_directory(ROOT / "models")
     reference = load_seasonal_reference(
-        ROOT / "models/modelo_clusters_k3.pkl", excluded_years=("2010", "2015"), include_patterns=("san pedro",),
+        ROOT / "data/reference/san_pedro_2025_2026.json", as_of="2026-07-15",
     )
     trajectory = run_predweem(
         weather, model, ModelParameters(),
@@ -181,7 +181,8 @@ def test_calibration_keeps_san_pedro_termohydric_reservoir_and_local_reference(r
     assert saved["model_parameters"]["k_cohorte"] == ModelParameters().k_cohorte
     assert saved["seasonal_reference"]["include_patterns"] == ["san pedro"]
     assert saved["seasonal_reference"]["excluded_years"] == ["2010", "2015"]
-    assert saved["seasonal_reference"]["n_campaigns"] == 1
+    assert saved["seasonal_reference"]["n_campaigns"] == 2
+    assert saved["season_complete"] is True
     assert saved["source"]["density_units_confirmed"] is False
     assert saved["validation"]["base_model_uses_training_season"] is True
 

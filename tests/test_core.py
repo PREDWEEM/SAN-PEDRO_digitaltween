@@ -38,7 +38,7 @@ def test_extracted_core_matches_original_san_pedro(coverage, wmax, kr):
     )
     for column in (
         "EMERREL_RAW_ANN", "ET0", "W_superficial", "Hydric_Factor",
-        "EMERREL", "EMERAC", "EMERAC_NORMALIZADA", "Factor_TermoHidrico",
+        "EMERREL", "EMERAC", "Factor_TermoHidrico",
         "Reserva_Cohorte", "Factor_Cohorte", "Fraccion_Liberada_Cohorte", "Tcrit_Efectiva", "TT_DESDE_PICO",
     ):
         if column in expected:
@@ -50,6 +50,9 @@ def test_extracted_core_matches_original_san_pedro(coverage, wmax, kr):
     np.testing.assert_allclose(result.TT_DESDE_PICO, expected_tt, atol=1e-12)
     assert result.Termoinhibida.equals(expected.Termoinhibida)
     assert result.Primer_Pico_Habilitado.equals(expected.Primer_Pico_Habilitado)
+    # El gemelo revisa sólo la normalización: masa liberada / reserva inicial,
+    # mientras que el original dividía por la suma del período disponible.
+    np.testing.assert_allclose(result.EMERAC_NORMALIZADA, expected.EMERAC)
 
 
 def test_reservoir_conserves_mass_and_does_not_use_future_pulses():

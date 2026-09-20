@@ -20,7 +20,7 @@ from sanpedro_calibracion_final import (
     aplicar_interaccion_termohidrica, aplicar_agotamiento_cohorte,
 )
 
-from .seasonal import partial_season_normalization, reference_progress
+from .seasonal import cohort_progress, reference_calendar_days, reference_progress
 
 
 @dataclass(frozen=True)
@@ -232,6 +232,8 @@ def run_predweem(
 ) -> pd.DataFrame:
     """Ejecuta PREDWEEM y devuelve una trayectoria diaria auditable."""
     df = _clean_weather(weather)
+    if df["Fecha"].dt.year.nunique() != 1:
+        raise ValueError("Ejecute cada campaña por separado para reiniciar el reservorio.")
     df["Julian_days"] = df["Fecha"].dt.dayofyear
     df["Cobertura_Rastrojo"] = daily_coverage(
         df["Fecha"], params.cobertura_pct, coverage_series
@@ -322,34 +324,23 @@ def run_predweem(
     df = aplicar_agotamiento_cohorte(df, first_peak_index, params.k_cohorte)
 
     df["EMERAC"] = df["EMERREL"].cumsum()
-    available_total = float(df["EMERREL"].sum())
-    total = available_total
-    normalization_mode = "total del período disponible"
-    normalization_metadata = {}
-    if seasonal_reference is not None and normalization_as_of is not None:
-        seasonal_total, normalization_metadata = partial_season_normalization(
-            df, normalization_as_of, seasonal_reference
-        )
-        if seasonal_total is not None:
-            total = seasonal_total
-            normalization_mode = normalization_metadata["mode"]
-        p10, median, p90 = reference_progress(
-            seasonal_reference, df["Julian_days"].to_numpy(float)
-        )
-        df["Progreso_Estacional_P10"] = p10
+    df["EMERAC_NORMALIZADA"], df["Reserva_Cohorte_Remanente"] = cohort_progress(df)
+    df["Normalizacion_Modo"] = "fracción del reservorio inicial modelado"
+    df["Total_EMERREL_Referencia"] = 1.0
+    # normalization_as_of se mantiene en la API; jamás fija el denominador.
+    if seasonal_reference is not None:
+        days = reference_calendar_days(df["Fecha"])
+        low, median, high = reference_progress(seasonal_reference, days)
+        df["Progreso_Estacional_Min"] = low
         df["Progreso_Estacional_Referencia"] = median
-        df["Progreso_Estacional_P90"] = p90
+        df["Progreso_Estacional_Max"] = high
+        for column in seasonal_reference:
+            if column.startswith("Progreso_") and column[9:].isdigit():
+                df[column] = np.interp(days, seasonal_reference["Julian_days"], seasonal_reference[column])
     else:
-        df["Progreso_Estacional_P10"] = np.nan
+        df["Progreso_Estacional_Min"] = np.nan
         df["Progreso_Estacional_Referencia"] = np.nan
-        df["Progreso_Estacional_P90"] = np.nan
-    df["EMERAC_NORMALIZADA"] = df["EMERAC"] / total if total > 0 else 0.0
-    df["EMERAC_NORMALIZADA"] = df["EMERAC_NORMALIZADA"].clip(0.0, 1.0)
-    df["Normalizacion_Modo"] = normalization_mode
-    df["Total_EMERREL_Referencia"] = total
-    df["Fecha_Ancla_Normalizacion"] = normalization_metadata.get(
-        "anchor_date", pd.NaT
-    )
+        df["Progreso_Estacional_Max"] = np.nan
     df["DG"] = df["Tmedia"].apply(
         lambda value: calculate_tt(value, params.t_base, params.t_opt, params.t_crit)
     )

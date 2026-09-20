@@ -70,10 +70,9 @@ def load_model():
 
 
 @st.cache_data(show_spinner=False)
-def load_progress_reference():
+def load_progress_reference(as_of):
     return load_seasonal_reference(
-        BASE / "models" / "modelo_clusters_k3.pkl",
-        excluded_years=("2010", "2015"), include_patterns=("san pedro",),
+        BASE / "data/reference/san_pedro_2025_2026.json", as_of=as_of,
     )
 
 
@@ -99,8 +98,17 @@ def trajectory_chart(
     audit=None,
     lower_thermal_time=600.0,
     upper_thermal_time=800.0,
+    show_references=False,
 ):
     figure = make_subplots(specs=[[{"secondary_y": True}]])
+    if show_references:
+        for year, color in [(2025, "#c58023"), (2026, "#0891b2")]:
+            if f"Progreso_{year}" in df:
+                figure.add_trace(go.Scatter(
+                    x=df["Fecha"], y=df[f"Progreso_{year}"] * 100,
+                    name=f"Referencia {year}", connectgaps=False,
+                    line=dict(color=color, width=1.8, dash="dash"),
+                ), secondary_y=False)
     figure.add_trace(
         go.Bar(
             x=df["Fecha"],
@@ -205,8 +213,8 @@ def trajectory_chart(
     figure.update_yaxes(title_text="Emergencia acumulada (%)", range=[0, 105], secondary_y=False)
     figure.update_yaxes(title_text="Flujo diario (%)", rangemode="tozero", secondary_y=True)
     figure.update_layout(
-        height=470,
-        margin=dict(l=10, r=10, t=30, b=10),
+        height=510,
+        margin=dict(l=10, r=10, t=70, b=10),
         legend=dict(orientation="h", y=1.12),
         hovermode="x unified",
         plot_bgcolor="white",
@@ -315,8 +323,10 @@ parameters = ModelParameters(
     longitud=float(longitude),
 )
 model = load_model()
-seasonal_reference = load_progress_reference()
+seasonal_reference = load_progress_reference(as_of)
 reference_campaigns = int(seasonal_reference["N_Campanas"].iloc[0])
+reference_years = seasonal_reference["Campanas"].iloc[0]
+reference_count_label = "1 campaña disponible" if reference_campaigns == 1 else f"{reference_campaigns} campañas disponibles"
 store = load_store()
 coverage_observations = store.coverage_observations(site_id)
 active_coverage = coverage_observations[
@@ -404,9 +414,10 @@ if source_option == "SIGA San Pedro + ECMWF operativa":
         "Los provisionales se reemplazan cuando SIGA publica el dato completo."
     )
 st.caption(
-    f"Referencia estacional local: {reference_campaigns} campaña de San Pedro (2025). "
-    "Motor SP-FINAL ya calibrado con 2025–2026; la capa adicional 2026 es retrospectiva. "
-    "Los percentiles de una sola campaña no caracterizan la variabilidad anual."
+    f"Referencia estacional local: {reference_count_label} de San Pedro ({reference_years}). "
+    "Se incorporan 2025 y 2026 como completas según su declaración; "
+    "2026 se muestra desde su último conteo, el 15/07/2026. "
+    "El motor SP-FINAL ya utilizó ambos años para calibrarse."
 )
 if not forecast_metadata["complete"]:
     st.warning(
@@ -473,6 +484,7 @@ with tab_state:
                 "retrospectiva por cortes en intervalos posteriores. Perfil experimental; puede "
                 "desactivarlo para comparar con la curva base."
             )
+    show_references = st.toggle("Comparar con campañas completas", value=True, key="show_campaign_references")
     st.plotly_chart(
         trajectory_chart(
             twin_trajectory,
@@ -481,9 +493,40 @@ with tab_state:
             assimilation_audit,
             parameters.tt_control,
             parameters.tt_limite,
+            show_references=show_references,
         ),
         width="stretch",
     )
+    st.caption(
+        "Porcentaje base = 100 × fracción liberada del reservorio inicial modelado. "
+        "La lluvia y la temperatura modifican su liberación; el final del archivo "
+        "meteorológico y el calendario histórico no fijan el porcentaje. "
+        "La calibración adicional y los conteos del lote pueden corregir la curva Twin."
+    )
+    st.caption(
+        "Las referencias expresan el acumulado de cada campaña respecto de su propio total. "
+        "El porcentaje del gemelo expresa un potencial modelado, cuyo agotamiento no se "
+        "garantiza al cierre. El remanente es una estimación, no una medición del banco de semillas."
+    )
+    with st.expander("Referencias 2025 y 2026 y cálculo del porcentaje"):
+        reference_row = base_trajectory.loc[base_trajectory.Fecha <= pd.Timestamp(as_of)].iloc[-1]
+        st.write(
+            f"En esta fecha, la mediana histórica es {reference_row.Progreso_Estacional_Referencia:.1%} "
+            f"y el rango observado es {reference_row.Progreso_Estacional_Min:.1%}–"
+            f"{reference_row.Progreso_Estacional_Max:.1%}. "
+            "Este rango describe las campañas disponibles; no es un intervalo de confianza."
+        )
+        st.write(
+            "2025: curva diaria procesada conservada en el clasificador original. "
+            "2026: acumulados de los 12 conteos del 01/02 al 15/07, interpolados entre muestreos. "
+            "Los días anteriores al primer conteo de 2026 quedan sin referencia. "
+            "No se agregan conteos tras el cierre declarado ni se transfieren totales como densidad del lote."
+        )
+        st.dataframe(seasonal_reference, hide_index=True, width="stretch")
+        st.download_button(
+            "Descargar referencias disponibles", seasonal_reference.to_csv(index=False).encode("utf-8-sig"),
+            file_name="san_pedro_referencias.csv", mime="text/csv",
+        )
     left, right = st.columns([1.35, 1])
     with left:
         st.subheader("Lectura agronómica")
@@ -850,7 +893,7 @@ with tab_calibration:
         )
         st.caption(
             f'Suma registrada: {source["observed_total_units"]:.1f} unidades del adjunto. '
-            'Es un total observado parcial, no el potencial estacional del lote. '
+            'Corresponde a la campaña declarada completa; su escala no se transfiere como potencial del lote. '
             'Al no contar con repeticiones, el ajuste utiliza un piso de ponderación '
             'común; no se dispone de un error de muestreo medido.'
         )
@@ -1010,7 +1053,7 @@ with tab_audit:
                     f"k={parameters.k_cohorte:.7f}; termohidria T0={parameters.umbral_termoinhibicion:.4f} °C; "
                     f"ventana={parameters.ventana_termohidrica} días"
                 ),
-                f"San Pedro 2025; n={reference_campaigns} campaña; excluye 2010 y 2015",
+                f"San Pedro {reference_years}; n={reference_campaigns}; referencia descriptiva",
             ],
         }
     )
@@ -1033,8 +1076,9 @@ with tab_audit:
         "Cobertura_Modo", "Cobertura_Observada", "Ke_Suelo",
         "Modulador_Termico_Cobertura",
         "Normalizacion_Modo", "Total_EMERREL_Referencia",
-        "Progreso_Estacional_P10", "Progreso_Estacional_Referencia",
-        "Progreso_Estacional_P90",
+        "Progreso_Estacional_Min", "Progreso_Estacional_Referencia",
+        "Progreso_Estacional_Max", "Progreso_2025", "Progreso_2026",
+        "Reserva_Cohorte_Remanente",
         "Termoinhibida", "TT_DESDE_PICO", "EMERREL_ANTES_TERMOHIDRIA",
         "Tmedia_TH", "Indice_Hidrico_Termico", "Tcrit_Efectiva", "Factor_TermoHidrico",
         "EMERREL_ANTES_COHORTE", "Reserva_Cohorte", "Fraccion_Liberada_Cohorte", "Factor_Cohorte",

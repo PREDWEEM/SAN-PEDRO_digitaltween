@@ -30,6 +30,8 @@ def model_fingerprint(root: str | Path) -> str:
         "models/bias_out.npy", "models/modelo_clusters_k3.pkl",
         "predweem_twin/core.py", "predweem_twin/seasonal.py",
         "sanpedro_calibracion_final.py", "sanpedro_calibration_2025_2026.json",
+        "data/reference/san_pedro_2025_2026.json",
+        "data/reference/san_pedro_2025_2026_curves.csv",
     ]
     digest = hashlib.sha256()
     for path in paths:

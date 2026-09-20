@@ -1,133 +1,88 @@
-"""Referencia estacional para normalizar ejecuciones meteorológicas parciales."""
+"""Referencias descriptivas locales y progreso causal del reservorio San Pedro."""
 
 from __future__ import annotations
 
+from hashlib import sha256
+import json
 from pathlib import Path
-import pickle
 
 import numpy as np
 import pandas as pd
 
 
-def load_seasonal_reference(
-    source: str | Path,
-    excluded_years: tuple[str, ...] = ("2010", "2015"),
-    include_patterns: tuple[str, ...] | None = None,
-) -> pd.DataFrame:
-    """Construye percentiles de progreso y permite una referencia local.
+def load_seasonal_reference(source: str | Path, as_of=None) -> pd.DataFrame:
+    """Carga curvas completas sin utilizar cierres posteriores al corte.
 
-    ``include_patterns`` filtra por nombre sin distinguir mayúsculas.
-    El gemelo selecciona «san pedro» (campaña 2025) y excluye 2010 y 2015.
-    Una sola campaña no permite caracterizar robustamente la variación anual.
+    Cada campaña aporta el mismo peso. El rango es mínimo–máximo observado,
+    no un intervalo probabilístico. Las curvas son contexto descriptivo y no
+    intervienen en el denominador del porcentaje calculado por el motor.
     """
-    with Path(source).open("rb") as handle:
-        payload = pickle.load(handle)
-
-    julian_days = np.asarray(
-        payload.get("JD_common", payload.get("JD_COMMON")), dtype=float
-    )
-    curves = np.asarray(
-        payload.get("curves_interp", payload.get("curves")), dtype=float
-    )
-    names = [str(value) for value in payload.get("names", payload.get("files", []))]
-    if curves.ndim != 2 or len(julian_days) != curves.shape[1]:
-        raise ValueError("La referencia histórica no contiene curvas compatibles.")
-    if names and len(names) == len(curves):
-        patterns = tuple(
-            str(pattern).lower() for pattern in (include_patterns or ())
+    source = Path(source)
+    manifest = json.loads(source.read_text(encoding="utf-8"))
+    data_path = source.parent / manifest["curves_file"]
+    if sha256(data_path.read_bytes()).hexdigest() != manifest["curves_sha256"]:
+        raise ValueError("Las curvas estacionales no coinciden con su procedencia.")
+    frame = pd.read_csv(data_path)
+    cutoff = pd.Timestamp(as_of).normalize() if as_of is not None else None
+    campaigns = [
+        item for item in manifest["campaigns"]
+        if item["complete"] and (
+            cutoff is None or pd.Timestamp(item["available_from"]) <= cutoff
         )
-        keep = np.array([
-            not any(year in name for year in excluded_years)
-            and (
-                not patterns
-                or any(pattern in name.lower() for pattern in patterns)
-            )
-            for name in names
-        ])
-        curves = curves[keep]
-        names = [name for name, selected in zip(names, keep) if selected]
-    if include_patterns and not len(curves):
-        raise ValueError(
-            "La referencia histórica no contiene campañas para: "
-            + ", ".join(include_patterns)
-        )
-    curves = np.clip(curves, 0.0, None)
-    totals = curves.sum(axis=1, keepdims=True)
-    valid = totals[:, 0] > 1e-12
-    if not valid.any():
-        raise ValueError("La referencia histórica no contiene flujos positivos.")
-    progress = np.cumsum(curves[valid], axis=1) / totals[valid]
-    return pd.DataFrame(
-        {
-            "Julian_days": julian_days,
-            "Progreso_P10": np.quantile(progress, 0.10, axis=0),
-            "Progreso_Mediano": np.median(progress, axis=0),
-            "Progreso_P90": np.quantile(progress, 0.90, axis=0),
-            "N_Campanas": int(valid.sum()),
-            "Campanas": ", ".join(
-                name for name, selected in zip(names, valid) if selected
-            ) if names else "",
-        }
-    )
+    ]
+    if not campaigns:
+        raise ValueError("No hay campañas completas disponibles para esta fecha.")
+    reference = pd.DataFrame({"Julian_days": np.arange(1, 366)})
+    for item in campaigns:
+        year = item["year"]
+        curve = frame.loc[frame["Campana"].eq(year)].sort_values("Julian_days")
+        if not np.array_equal(curve["Julian_days"], reference["Julian_days"]):
+            raise ValueError(f"Eje diario incompleto o duplicado en {year}.")
+        values = curve["Progreso"].to_numpy(float)
+        valid = values[np.isfinite(values)]
+        if (len(valid) == 0 or (valid < 0).any() or (valid > 1).any()
+                or (np.diff(valid) < -1e-12).any() or not np.isclose(valid[-1], 1)):
+            raise ValueError(f"Progreso estacional inválido en {year}.")
+        reference[f"Progreso_{year}"] = values
+    columns = [f"Progreso_{item['year']}" for item in campaigns]
+    reference["Progreso_Min"] = reference[columns].min(axis=1)
+    reference["Progreso_Mediano"] = reference[columns].median(axis=1)
+    reference["Progreso_Max"] = reference[columns].max(axis=1)
+    reference["N_Campanas_Dia"] = reference[columns].notna().sum(axis=1)
+    reference["N_Campanas"] = len(campaigns)
+    reference["Campanas"] = ", ".join(str(item["year"]) for item in campaigns)
+    reference.attrs["campaigns"] = campaigns
+    return reference
 
 
-def reference_progress(
-    reference: pd.DataFrame, julian_days
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Interpola P10, mediana y P90 para uno o varios días julianos."""
-    days = np.asarray(julian_days, dtype=float)
-    axis = reference["Julian_days"].to_numpy(float)
-    values = []
-    for column in ("Progreso_P10", "Progreso_Mediano", "Progreso_P90"):
-        values.append(
-            np.interp(
-                days,
-                axis,
-                reference[column].to_numpy(float),
-                left=0.0,
-                right=1.0,
-            )
-        )
-    return tuple(values)
+def reference_calendar_days(dates) -> np.ndarray:
+    """Alinea por mes/día; el 29/02 se sitúa entre el 28/02 y el 01/03."""
+    dates = pd.DatetimeIndex(pd.to_datetime(dates))
+    days = dates.dayofyear.to_numpy(dtype=float)
+    days -= (dates.is_leap_year & (dates.month > 2)).astype(int)
+    days[(dates.month == 2) & (dates.day == 29)] = 59.5
+    return days
 
 
-def partial_season_normalization(
-    trajectory: pd.DataFrame,
-    as_of,
-    reference: pd.DataFrame,
-) -> tuple[float | None, dict]:
-    """Estima el total de señal estacional sin usar el fin del pronóstico.
+def reference_progress(reference: pd.DataFrame, calendar_days):
+    """Interpola mínimo, mediana y máximo, conservando tramos desconocidos."""
+    return tuple(np.interp(
+        np.asarray(calendar_days, dtype=float), reference["Julian_days"],
+        reference[column], left=np.nan, right=np.nan,
+    ) for column in ("Progreso_Min", "Progreso_Mediano", "Progreso_Max"))
 
-    La señal acumulada de PREDWEEM se ancla, en la fecha del estado, al progreso
-    mediano de campañas históricas. Si aún no existe señal positiva, utiliza el
-    último día disponible como ancla provisional.
+
+def cohort_progress(trajectory: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+    """Fracción liberada y remanente del reservorio inicial unitario.
+
+    EMERREL ya es masa liberada por el motor SP-FINAL. No se divide por el
+    total observado al cierre ni por un progreso histórico en la fecha actual.
+    El reservorio es un estado modelado, no una medición del banco de semillas.
     """
-    cutoff = pd.Timestamp(as_of).tz_localize(None).normalize()
-    candidates = trajectory.index[trajectory["Fecha"] <= cutoff].tolist()
-    anchor_idx = candidates[-1] if candidates else 0
-    p10, median, p90 = reference_progress(
-        reference, trajectory["Julian_days"].to_numpy(float)
-    )
-    raw_cumulative = trajectory["EMERAC"].to_numpy(float)
-
-    if raw_cumulative[anchor_idx] <= 1e-12 or median[anchor_idx] <= 0.01:
-        valid = np.flatnonzero((raw_cumulative > 1e-12) & (median > 0.01))
-        if not len(valid):
-            return None, {
-                "mode": "sin señal suficiente",
-                "anchor_date": trajectory.at[anchor_idx, "Fecha"],
-                "reference_progress": float(median[anchor_idx]),
-            }
-        anchor_idx = int(valid[0])
-
-    seasonal_total = float(raw_cumulative[anchor_idx] / median[anchor_idx])
-    if not np.isfinite(seasonal_total) or seasonal_total <= 1e-12:
-        return None, {"mode": "sin señal suficiente"}
-    return seasonal_total, {
-        "mode": "referencia estacional histórica",
-        "anchor_date": trajectory.at[anchor_idx, "Fecha"],
-        "reference_progress": float(median[anchor_idx]),
-        "reference_p10": float(p10[anchor_idx]),
-        "reference_p90": float(p90[anchor_idx]),
-        "seasonal_signal_total": seasonal_total,
-    }
+    released = trajectory["EMERAC"].to_numpy(float)
+    remaining = (trajectory["Reserva_Cohorte"] - trajectory["EMERREL"]).to_numpy(float)
+    if (not np.isfinite(released).all() or not np.isfinite(remaining).all()
+            or (released < -1e-10).any() or (remaining < -1e-10).any()
+            or not np.allclose(released + remaining, 1.0, atol=1e-10, rtol=0)):
+        raise ValueError("El reservorio de cohorte no conserva su masa inicial.")
+    return np.clip(released, 0, 1), np.clip(remaining, 0, 1)

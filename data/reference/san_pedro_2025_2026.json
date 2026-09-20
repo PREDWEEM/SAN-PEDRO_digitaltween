@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "site": "San Pedro",
+  "curves_file": "san_pedro_2025_2026_curves.csv",
+  "curves_sha256": "fc9f506e3c31043dbf7abc58ef31dac60dfb0945eb7cb59c82042068422da065",
+  "role": "referencias descriptivas; no determinan el porcentaje modelado",
+  "complete_seasons_basis": "El usuario declara completas las campañas 2025 y 2026 el 20/09/2026.",
+  "bands": "mínimo y máximo de las campañas disponibles; no intervalos de confianza",
+  "campaigns": [
+    {
+      "year": 2025,
+      "complete": true,
+      "available_from": "2026-01-01",
+      "source": "models/modelo_clusters_k3.pkl",
+      "source_sha256": "29f0508543bdda4b2520038c678a9df80ff9be555e0c15d5fa1f4da16a499d30",
+      "source_curve": "emrel sp 2025 san pedro.xlsx",
+      "representation": "flujo diario previamente interpolado y normalizado del clasificador original",
+      "source_day_start": 1,
+      "source_day_end": 280,
+      "source_daily_points": 280,
+      "processing": "suma acumulada del flujo procesado dividida por su suma total",
+      "limitation": "No se dispone aquí de los conteos ni la meteorología originales de 2025; no se reconstruyen densidades."
+    },
+    {
+      "year": 2026,
+      "complete": true,
+      "available_from": "2026-07-15",
+      "source": "data/calibration/san_pedro_2026_counts.csv",
+      "source_sha256": "85e3ba85c870f8fe422509bea887a327d0cd4bfbbfcb046d5a781f852be92a1c",
+      "representation": "conteos de plantas por intervalo en la escala del adjunto",
+      "observations_start": "2026-02-01",
+      "observations_end": "2026-07-15",
+      "sample_count": 12,
+      "total_source_units": 3773.333333333333,
+      "density_units_confirmed": false,
+      "processing": "acumulado en muestreos / total registrado; interpolación lineal entre muestreos",
+      "limitation": "Sin datos anteriores al cero del 01/02; cierre completo aceptado por declaración del usuario. No se agregan conteos después del 15/07 ni se infieren m²."
+    }
+  ],
+  "limitations": [
+    "Dos campañas describen variación observada, sin estimar probabilidades robustas.",
+    "La referencia 2025 proviene de un procesamiento previo; 2026 conserva acumulados de conteos por intervalo. La comparación es descriptiva.",
+    "No se imputan observaciones nuevas: el valor uno se mantiene tras el cierre declarado de cada campaña.",
+    "La exclusión de curvas cerradas después del corte evita mostrar datos futuros. Las revisiones retrospectivas y el motor calibrado con 2025–2026 no constituyen pronósticos históricos independientes."
+  ]
+}

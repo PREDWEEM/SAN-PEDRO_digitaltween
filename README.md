@@ -66,10 +66,60 @@ Los valores de cobertura de respaldo y Wmax permanecen congelados en la interfaz
 La cobertura observada permite explorar una trayectoria distinta cuando el usuario
 la selecciona explícitamente.
 
-Para series parciales se utiliza la campaña local `emrel sp 2025 san pedro.xlsx`
-del clasificador original. Se excluyen 2010 y 2015. Una sola campaña no permite
-caracterizar robustamente la variabilidad anual. El total parcial de los conteos
-no se transfiere como potencial estacional.
+## Referencias completas 2025 y 2026 y porcentaje acumulado
+
+Se incorporan ambas campañas de San Pedro como completas según la declaración
+del usuario del 20/09/2026, conservando la procedencia disponible:
+
+- **2025:** curva diaria ya procesada `emrel sp 2025 san pedro.xlsx`, guardada en
+  el clasificador original. Se acumula su flujo y se divide por su suma. Aquí
+  no están los conteos ni la meteorología originales de ese año.
+- **2026:** 12 conteos entre 01/02 y 15/07 del adjunto. Se divide el acumulado
+  observado por la suma registrada y se interpola el acumulado entre muestreos,
+  conservando la masa de cada intervalo. La distribución diaria dentro del
+  intervalo es desconocida. Antes del primer conteo la referencia queda vacía.
+
+No se agregan conteos posteriores al 15/07. Después del cierre declarado se
+mantiene la referencia acumulada en 1. Ambas curvas tienen el mismo peso en
+la mediana; el mínimo y máximo describen los años disponibles y **no son
+intervalos de confianza**. Se conservan las exclusiones de 2010 y 2015 al
+seleccionar exclusivamente estas dos campañas locales. La alineación es por
+mes/día, incluido tratamiento explícito del 29 de febrero.
+
+La opción **Comparar con campañas completas**, sobre el gráfico principal,
+muestra cada año por separado. El detalle del rango, mediana, procedencia y
+descarga está bajo el gráfico. La referencia 2026 se excluye en cortes anteriores
+al 15/07/2026; revisar 2026 con el motor ajustado a ese año sigue siendo retrospectivo.
+
+El porcentaje base ahora se calcula como:
+
+```
+progreso_base(t) = suma de flujos liberados hasta t / reservorio inicial (1)
+remanente_base(t) = Reserva_Cohorte(t) - EMERREL(t)
+progreso_base(t) + remanente_base(t) = 1
+```
+
+El reservorio existente utiliza lluvia, temperatura y estado hídrico para
+liberar la cohorte. **Se elimina el anclaje al progreso histórico en la fecha
+de consulta y la división por el total del archivo meteorológico disponible.**
+Extender el horizonte o cambiar el pronóstico futuro no modifica el porcentaje
+base de días anteriores, dentro de la precisión numérica. Una serie parcial
+no se fuerza a terminar en 100 %. Cada campaña se ejecuta por separado.
+
+El porcentaje representa la fracción del **potencial inicial modelado**. El
+reservorio no es una medición del banco de semillas y puede conservar remanente
+al cierre. Las referencias, por su parte, se expresan respecto del total
+registrado de cada año: su comparación es descriptiva y no determina el
+denominador del modelo. La capa adicional y la asimilación pueden corregir el
+progreso Twin; `Reserva_Cohorte_Remanente` conserva el estado del motor base.
+Los totales históricos no se transfieren como densidad a otros lotes.
+
+Datos y procedencia: `data/reference/san_pedro_2025_2026{.json,_curves.csv}`.
+Para reproducir las referencias sin red:
+
+```bash
+python scripts/build_seasonal_reference.py
+```
 
 El interruptor controla **sólo la capa adicional del gemelo**. Al desactivarlo,
 la curva base conserva su calibración fisiológica 2025–2026.
@@ -125,18 +175,21 @@ emergencia antes del 01/02. Se conservan los intervalos irregulares, sin
 convertirlos artificialmente en semanas.
 
 La transformación `G(F) = logistic(offset + slope × logit(F))` utiliza
-**offset 0,55 y slope 0,625**. Conserva 0 y 1, la monotonía y los días sin flujo.
+**offset 0,50 y slope 0,60**, reajustados después de revisar la normalización.
+Conserva 0 y 1, la monotonía y los días sin flujo.
 No modifica los pesos ANN, los parámetros fisiológicos ni el reloj térmico.
 La escala auxiliar del ajuste no se transfiere como densidad del lote.
 
 | Evaluación | RMSE base | RMSE con capa adicional |
 |---|---:|---:|
-| Ajuste retrospectivo, 11 intervalos | 347,65 | 208,33 |
-| Evaluación retrospectiva por cortes, 5 intervalos | 17,75 | 18,97 |
+| Ajuste retrospectivo, 11 intervalos | 347,65 | 205,42 |
+| Evaluación retrospectiva por cortes, 5 intervalos | 17,1251 | 17,1289 |
 
-RMSE en unidades del adjunto por intervalo. El ajuste mejora un **40,1 %**, pero
-la evaluación por cortes empeora un **6,9 %** y no mejora ninguno de los cinco
-intervalos. En cada corte se ajusta la capa adicional con los conteos previos y
+RMSE en unidades del adjunto por intervalo. El ajuste mejora un **40,9 %**.
+La evaluación por cortes presenta prácticamente el mismo RMSE (aumenta 0,02 %);
+mejoran tres de los cinco intervalos, sin demostrar transferencia predictiva.
+La pendiente alcanza el límite inferior permitido, 0,60. No se amplían sus
+límites para mejorar artificialmente el ajuste. En cada corte se ajusta la capa adicional con los conteos previos y
 se evalúa el intervalo siguiente usando meteorología realizada. **El motor base
 ya fue calibrado con 2025 y 2026**, por lo que estos resultados no constituyen
 validación independiente ni demuestran mejora predictiva. Se requieren nuevas
@@ -174,8 +227,9 @@ python -m pytest -q
 python -m compileall -q app.py predweem_twin scripts
 ```
 
-Las pruebas verifican equivalencia con el motor original parcheado, causalidad
-y conservación del reservorio, termohidria continua, datos adjuntos y unidades,
+Las pruebas verifican equivalencia de ANN, flujos y fisiología con el motor
+original parcheado, la nueva normalización causal y conservación del reservorio,
+reproducción de ambas referencias, termohidria continua, datos adjuntos y unidades,
 perfil reproducible, asimilación, cobertura, meteorología y cierre de campaña.
 GitHub Actions ejecuta las pruebas automáticamente. La procedencia científica
 está documentada en [MODEL_PROVENANCE.md](MODEL_PROVENANCE.md).
