@@ -1,5 +1,5 @@
 {
-  "ejecucion_utc": "2026-09-19T20:55:50+00:00",
+  "ejecucion_utc": "2026-09-20T14:20:22+00:00",
   "sitio": "San Pedro",
   "latitud": -33.7328,
   "longitud": -59.7965,
@@ -26,7 +26,8 @@
     "2026-08-18",
     "2026-08-19",
     "2026-09-17",
-    "2026-09-18"
+    "2026-09-18",
+    "2026-09-19"
   ],
   "rangos_provisionales": [
     {
@@ -51,16 +52,16 @@
     },
     {
       "inicio": "2026-09-17",
-      "fin": "2026-09-18"
+      "fin": "2026-09-19"
     }
   ],
   "fuente_provisional": "ECMWF_IFS_HISTORICO",
-  "filas_provisionales": 13,
+  "filas_provisionales": 14,
   "fecha_fin_campania": "2026-10-01",
   "fuente_pronostico": "ECMWF_IFS_ENS_025",
   "estadistico_operativo": "P50",
-  "inicio_pronostico": "2026-09-19",
-  "fin_pronostico": "2026-09-25",
+  "inicio_pronostico": "2026-09-20",
+  "fin_pronostico": "2026-09-26",
   "miembros_validos_min": 51,
   "huecos_finales": []
 }
