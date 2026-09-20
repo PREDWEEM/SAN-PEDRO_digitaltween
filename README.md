@@ -18,6 +18,29 @@ streamlit run app.py
 En Streamlit Community Cloud, seleccione `PREDWEEM/SAN-PEDRO_digitaltween`,
 rama `main` y archivo principal `app.py`.
 
+## Visitas periódicas para reducir la hibernación
+
+El workflow [mantener_activo.yml](.github/workflows/mantener_activo.yml) abre
+la aplicación pública con Chromium cada cuatro horas (00:17, 04:17, 08:17,
+12:17, 16:17 y 20:17 UTC). También admite ejecución manual desde
+**Actions → Mantener activo el gemelo San Pedro → Run workflow** y se prueba
+al modificar el workflow o su script.
+
+La visita verifica el encabezado de San Pedro, el indicador de emergencia,
+el panel principal y su gráfico, incluso dentro del iframe de Streamlit.
+Si aparece el botón público para despertar la app, lo pulsa una vez y permite
+hasta cinco minutos para iniciar. Una respuesta HTTP 200 por sí sola no cuenta
+como éxito. Un error o la falta de carga deja la ejecución en estado fallido;
+los avisos dependen de la configuración de notificaciones de GitHub Actions.
+No requiere secretos ni modifica datos del lote. Playwright sólo se instala
+en el ejecutor de Actions, no en la aplicación de Streamlit.
+
+Esto reduce el riesgo de hibernación; **no garantiza disponibilidad continua**.
+[Streamlit suspende las apps sin visitas durante 12 horas](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app#app-hibernation).
+[GitHub puede demorar tareas programadas y desactivarlas tras 60 días sin actividad en un repositorio público](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
+En ese caso, revise Actions y vuelva a habilitar el workflow. Para disponibilidad
+permanente se requiere un alojamiento que no suspenda por inactividad.
+
 ## Funcionamiento
 
 - **Estado:** emergencia acumulada, barras azules de flujo diario, curva base,
