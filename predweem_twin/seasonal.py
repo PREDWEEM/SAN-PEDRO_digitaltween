@@ -10,6 +10,12 @@ import numpy as np
 import pandas as pd
 
 
+LOCAL_CAMPAIGNS = {
+    2025: "models/modelo_clusters_k3.pkl",
+    2026: "data/calibration/san_pedro_2026_counts.csv",
+}
+
+
 def load_seasonal_reference(source: str | Path, as_of=None) -> pd.DataFrame:
     """Carga curvas completas sin utilizar cierres posteriores al corte.
 
@@ -19,15 +25,34 @@ def load_seasonal_reference(source: str | Path, as_of=None) -> pd.DataFrame:
     """
     source = Path(source)
     manifest = json.loads(source.read_text(encoding="utf-8"))
+    if manifest.get("site") != "San Pedro":
+        raise ValueError("La referencia debe corresponder a San Pedro.")
+    local = []
+    for item in manifest["campaigns"]:
+        year = item["year"]
+        # Una campaña nueva no se agrega al pool por aparecer en el archivo.
+        if year not in LOCAL_CAMPAIGNS:
+            continue
+        if (item.get("site", manifest["site"]) != "San Pedro"
+                or item.get("source") != LOCAL_CAMPAIGNS[year]
+                or (year == 2025 and item.get("source_curve")
+                    != "emrel sp 2025 san pedro.xlsx")):
+            raise ValueError(f"Procedencia local inválida para San Pedro {year}.")
+        local.append(item)
+    if sorted(item["year"] for item in local) != [2025, 2026]:
+        raise ValueError("Se requiere una única referencia de San Pedro 2025 y 2026.")
     data_path = source.parent / manifest["curves_file"]
     if sha256(data_path.read_bytes()).hexdigest() != manifest["curves_sha256"]:
         raise ValueError("Las curvas estacionales no coinciden con su procedencia.")
     frame = pd.read_csv(data_path)
     cutoff = pd.Timestamp(as_of).normalize() if as_of is not None else None
     campaigns = [
-        item for item in manifest["campaigns"]
+        item for item in sorted(local, key=lambda item: item["year"])
         if item["complete"] and (
-            cutoff is None or pd.Timestamp(item["available_from"]) <= cutoff
+            cutoff is None or max(
+                pd.Timestamp(item["available_from"]),
+                pd.Timestamp(item.get("observations_end", item["available_from"])),
+            ) <= cutoff
         )
     ]
     if not campaigns:
@@ -51,6 +76,11 @@ def load_seasonal_reference(source: str | Path, as_of=None) -> pd.DataFrame:
     reference["N_Campanas_Dia"] = reference[columns].notna().sum(axis=1)
     reference["N_Campanas"] = len(campaigns)
     reference["Campanas"] = ", ".join(str(item["year"]) for item in campaigns)
+    reference["Campanas_Anos"] = reference["Campanas"]
+    reference["Campanas_Excluidas"] = (
+        "Todas las localidades y campañas excepto San Pedro 2025 y San Pedro 2026"
+        + ("; San Pedro 2026 no disponible al corte" if len(campaigns) == 1 else "")
+    )
     reference.attrs["campaigns"] = campaigns
     return reference
 

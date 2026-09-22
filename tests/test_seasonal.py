@@ -110,3 +110,58 @@ def test_calendar_alignment_handles_leap_year_and_reservoir_rejects_mixed_years(
     weather = pd.DataFrame({"Fecha": ["2026-12-31", "2027-01-01"], "Prec": 0, "TMAX": 20, "TMIN": 10})
     with pytest.raises(ValueError, match="cada campaña"):
         simulate(weather)
+
+
+def test_pool_2027_is_exclusively_san_pedro_2025_and_2026(tmp_path):
+    import json
+    from hashlib import sha256
+    reference = load_seasonal_reference(SOURCE, as_of="2027-05-05")
+    manifest = build_reference(tmp_path)
+    manifest["campaigns"].append({
+        "year": 2024, "complete": True, "available_from": "2025-01-01",
+        "source": "otra_localidad.csv", "site": "Otra localidad",
+    })
+    curves_path = tmp_path / manifest["curves_file"]
+    curves = pd.read_csv(curves_path)
+    extra = pd.DataFrame({"Campana": 2024, "Julian_days": np.arange(1, 366), "Progreso": 1.})
+    pd.concat([curves, extra], ignore_index=True).to_csv(curves_path, index=False)
+    manifest["curves_sha256"] = sha256(curves_path.read_bytes()).hexdigest()
+    (tmp_path / SOURCE.name).write_text(json.dumps(manifest))
+    actual = load_seasonal_reference(tmp_path / SOURCE.name, as_of="2027-05-05")
+    assert actual.Campanas_Anos.eq("2025, 2026").all()
+    assert actual.N_Campanas.eq(2).all()
+    assert "Progreso_2024" not in actual
+    np.testing.assert_allclose(actual.Progreso_Mediano, reference.Progreso_Mediano)
+    assert "excepto San Pedro 2025 y San Pedro 2026" in actual.Campanas_Excluidas.iloc[0]
+
+
+@pytest.mark.parametrize("fault", ["site", "curve", "source", "duplicate"])
+def test_local_pool_rejects_wrong_site_source_or_duplicate_campaign(tmp_path, fault):
+    import json
+    manifest = build_reference(tmp_path)
+    if fault == "site":
+        manifest["site"] = "Balcarce"
+    elif fault == "curve":
+        manifest["campaigns"][0]["source_curve"] = "emrel balcarce 2025.xlsx"
+    elif fault == "source":
+        manifest["campaigns"][1]["source"] = "data/calibration/azul_2026_counts.csv"
+    else:
+        manifest["campaigns"].append(manifest["campaigns"][0].copy())
+    (tmp_path / SOURCE.name).write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="San Pedro"):
+        load_seasonal_reference(tmp_path / SOURCE.name, as_of="2027-05-05")
+
+
+def test_historical_flow_and_accumulated_pool_both_use_the_two_local_years():
+    from predweem_twin.flows import annual_historical_reference
+    reference = load_seasonal_reference(SOURCE, as_of="2027-05-05")
+    annual = annual_historical_reference(reference, "2027-05-05")
+    # Enero sólo tiene 2025; ambas campañas parten de cero el 1 de febrero.
+    paired = annual.loc[annual.Fecha.ge("2027-02-01")]
+    np.testing.assert_allclose(paired.Progreso_Mediano,
+                               (paired.Progreso_2025 + paired.Progreso_2026) / 2)
+    daily_2025 = annual.Progreso_2025.diff().fillna(0)
+    daily_2026 = annual.Progreso_2026.diff().fillna(0)
+    np.testing.assert_allclose(annual.Flujo_Diario, (daily_2025 + daily_2026) / 2, atol=1e-14)
+    assert annual.Flujo_Diario.sum() == pytest.approx(1)
+    np.testing.assert_allclose(annual.Flujo_Diario.cumsum(), annual.Progreso_Mediano)

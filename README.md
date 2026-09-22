@@ -43,9 +43,11 @@ permanente se requiere un alojamiento que no suspenda por inactividad.
 
 ## Funcionamiento
 
-- **Estado:** emergencia acumulada, barras azules de flujo diario, curva base,
-  curva calibrada, estado actualizado y banda amarilla 600–800 °Cd, con fechas
-  calendario en el eje horizontal.
+- **Configuración:** controles en el cuerpo, en tres columnas; sin panel lateral.
+- **Estado:** dos gráficos a la par, flujo semanal (con opción diaria) y emergencia
+  acumulada. Calendario del 1 de enero al 1 de octubre, pool histórico tenue y
+  proyección del gemelo limitada a la meteorología disponible hasta siete días.
+  Se conservan la curva base, calibración adicional y banda de 600–800 °Cd.
 - **Calibración local 2026:** activada por defecto, con interruptor sobre el
   gráfico principal. La selección persiste durante la sesión y actualiza el
   estado, los escenarios y la exportación.
@@ -109,10 +111,57 @@ intervalos de confianza**. Se conservan las exclusiones de 2010 y 2015 al
 seleccionar exclusivamente estas dos campañas locales. La alineación es por
 mes/día, incluido tratamiento explícito del 29 de febrero.
 
-La opción **Comparar con campañas completas**, sobre el gráfico principal,
-muestra cada año por separado. El detalle del rango, mediana, procedencia y
-descarga está bajo el gráfico. La referencia 2026 se excluye en cortes anteriores
-al 15/07/2026; revisar 2026 con el motor ajustado a ese año sigue siendo retrospectivo.
+El pool admite **únicamente San Pedro 2025 y San Pedro 2026**. Se verifica el
+sitio y la procedencia de ambas curvas; otras campañas del manifiesto no se
+incorporan automáticamente. Los archivos originales del clasificador se conservan,
+pero sus otras curvas no participan del histórico mostrado ni del indicador semanal.
+
+Los gráficos muestran una sola referencia **Pool histórico · orientativo**, sin
+curvas individuales por año. Tanto el flujo como el acumulado provienen de ese
+mismo pool: el flujo es la diferencia diaria de la mediana acumulada. Antes del
+01/02 sólo hay referencia 2025; desde el 01/02 las dos curvas tienen igual peso.
+El detalle del rango, procedencia y descarga está bajo los gráficos y las
+campañas utilizadas y excluidas se identifican en Trazabilidad.
+
+2025 está disponible desde el 01/01/2026 y 2026 desde el 15/07/2026. Para una
+consulta de 2027 se utilizan ambas. En cortes anteriores al 15/07/2026 sólo se
+utiliza 2025; revisar 2026 con el motor ajustado a ese año sigue siendo retrospectivo.
+La representación histórica en todo el calendario no extiende el pronóstico.
+
+Ambos flujos se expresan en **porcentaje**, no en escalas 0–1 frente a 0–100:
+el histórico respecto del total registrado de cada campaña y el gemelo respecto
+del potencial modelado. No son densidades directamente comparables. La vista
+semanal suma de lunes a domingo, conserva los totales y marca semanas parciales
+con rayado; no inventa datos faltantes ni desagrega observaciones como conteos diarios.
+
+### Intensidad de emergencia y tiempo térmico
+
+La intensidad compara la suma del flujo del gemelo de mañana a siete días después
+con el **máximo de las semanas completas del pool histórico**, de lunes a domingo,
+dentro del calendario visible hasta el 1 de octubre. El denominador es exactamente
+el de las barras históricas del gráfico, con su escala porcentual y calendario.
+No se usa el máximo de una sola campaña ni un incremento diario.
+
+| Intensidad | Flujo previsto / máximo semanal histórico |
+|---|---|
+| 🔴 Alta | >75 % |
+| 🟠 Media | 25–75 %, inclusive |
+| 🟡 Baja | >0 y <25 % |
+| 🟢 Nula | Flujo semanal exactamente cero |
+
+Se necesitan siete fechas válidas, sin duplicados ni flujos negativos. Con datos
+incompletos se muestra gris, sin atribuir intensidad baja o nula. Para un flujo
+positivo también se requiere un pico histórico positivo. Es un índice relativo,
+no una probabilidad ni una validación de precisión predictiva.
+
+| TT desde el primer pico | Indicador |
+|---|---|
+| >800 °Cd | 🔴 FUERA DE CONTROL |
+| >700 y ≤800 °Cd | 🟠 ULTIMO PLAZO |
+| ≥600 y ≤700 °Cd | 🟡 CONTROL A TIEMPO |
+| <600 °Cd | 🟢 AUN NO CONTROLAR |
+
+El TT se evalúa en la fecha de consulta, sin redondear para asignar la categoría.
 
 El porcentaje base ahora se calcula como:
 
@@ -145,7 +194,7 @@ python scripts/build_seasonal_reference.py
 ```
 
 El interruptor controla **sólo la capa adicional del gemelo**. Al desactivarlo,
-la curva base conserva su calibración fisiológica 2025–2026.
+la curva base conserva su calibración fisiológica 2025–2026 y el pool histórico sigue activo.
 
 ## Meteorología
 
