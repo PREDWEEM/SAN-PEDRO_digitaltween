@@ -1,18 +1,13 @@
 {
-  "ejecucion_utc": "2026-09-25T15:34:44+00:00",
+  "ejecucion_utc": "2026-09-25T21:59:48+00:00",
   "sitio": "San Pedro",
   "latitud": -33.7328,
   "longitud": -59.7965,
   "estacion_siga": "A872890",
-  "estado_siga": "SIGA_remoto",
+  "estado_siga": "SIGA_cache",
   "ultima_observacion_siga": "2026-09-21",
   "tmedia_siga_derivada": [],
-  "observaciones_siga_descartadas": [
-    "2026-06-09",
-    "2026-07-21",
-    "2026-07-24",
-    "2026-08-15"
-  ],
+  "observaciones_siga_descartadas": [],
   "huecos_siga": [
     "2026-06-09",
     "2026-06-10",
