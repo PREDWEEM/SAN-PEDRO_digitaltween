@@ -132,7 +132,51 @@ Ambos flujos se expresan en **porcentaje**, no en escalas 0–1 frente a 0–100
 el histórico respecto del total registrado de cada campaña y el gemelo respecto
 del potencial modelado. No son densidades directamente comparables. La vista
 semanal suma de lunes a domingo, conserva los totales y marca semanas parciales
-con rayado; no inventa datos faltantes ni desagrega observaciones como conteos diarios.
+en gris y con rayado; no inventa datos faltantes ni desagrega observaciones como conteos diarios.
+
+### Alerta preventiva de inicio y fecha de monitoreo
+
+Activada por defecto en **Configuración del gemelo**, con opción de desactivarla.
+Consulta la trayectoria base de San Pedro desde el comienzo de la campaña y avisa
+cuando `Primer_Pico_Habilitado` se activa entre mañana y el séptimo día, inclusive.
+Muestra la fecha modelada y los días de anticipación disponibles para organizar
+una recorrida. Funciona sin conteos de campo. Si hay un conteo positivo del lote
+hasta el corte, informa que ya había emergencia a más tardar en esa visita;
+no lo convierte en el día exacto de inicio.
+
+El gráfico de flujo muestra una **flecha vertical violeta** sobre el día calendario
+de la alerta inicial de monitoreo: **inicio modelado menos siete días**, con etiqueta
+`DD/MM/AAAA · estimada`. Se conserva en las vistas semanal y diaria, sin moverla al
+lunes ni al centro de la columna. Se recalcula con la información disponible al
+corte; no acredita que se haya emitido un aviso en esa fecha. Sin inicio modelado
+en el horizonte, con la alerta desactivada o fuera del calendario visible, no se dibuja.
+
+La alerta **no desplaza curvas ni el origen del tiempo térmico** y conserva los
+parámetros congelados, la interacción termohídrica y el reservorio causal de
+San Pedro. Es un aviso visual en la app, no una notificación externa. Puede
+anticipar hasta siete días; no garantiza detectar cada inicio. Si faltan días,
+indica horizonte incompleto y no descarta emergencia; una señal positiva dentro
+de los días disponibles sí activa vigilancia preventiva. Las revisiones con
+meteorología histórica o emisiones posteriores al corte se identifican
+explícitamente y no equivalen a pronósticos emitidos anticipadamente.
+El detalle queda en Trazabilidad y en el estado guardado (`onset_alert`), incluida
+la fecha estimada (`monitoring_alert_date`).
+
+### Colores del flujo semanal
+
+Las columnas completas se colorean con la misma clasificación del indicador:
+**rojo** (>75 % del máximo semanal histórico), **naranja** (25–75 % inclusive),
+**amarillo** (>0 y <25 %) y **verde** (flujo cero). El denominador proviene del
+pool exclusivo de San Pedro disponible para la fecha consultada: 2025 y, desde
+el 15/07/2026, también 2026. El color compara esas fracciones; la altura del
+gemelo sigue expresando el porcentaje del potencial modelado del lote, y el
+histórico el porcentaje de los totales registrados de las campañas.
+El histórico usa los mismos colores con menor opacidad. Las semanas completas
+sin flujo del gemelo se señalan con marcas verdes en y=0. Una semana parcial,
+inválida o un flujo positivo sin máximo histórico disponible queda sin categoría,
+en gris. El cursor muestra la categoría y el porcentaje del máximo.
+Las barras abarcan lunes–domingo; el indicador a siete días usa mañana–día 7
+y puede cruzar dos semanas calendario.
 
 ### Intensidad de emergencia y tiempo térmico
 
