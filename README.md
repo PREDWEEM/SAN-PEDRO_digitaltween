@@ -364,3 +364,14 @@ de flujo cero. Si se recibe una trayectoria sin normalización válida, el estad
 se muestra como “aún no estimable”, no como intensidad Nula. Los conteos originales
 se conservan y se reutilizan al disponer de escala; las bases previas migran
 sin perder registros. Estas protecciones no sustituyen el motor de reservorio.
+
+
+## Actualización coherente de módulos en Streamlit
+
+Una actualización en caliente podía mantener un constructor de estado antiguo
+sin `normalization_available`, aunque la interfaz y los archivos ya estaban
+actualizados. La aplicación ahora recarga sus módulos en orden de dependencia
+cuando cambia la firma del código y renueva el modelo en caché con esa revisión.
+Los cambios normales de fecha no recargan los módulos ni borran los conteos.
+Se conserva la normalización causal de San Pedro como fracción del reservorio
+inicial y su referencia local exclusiva de San Pedro 2025 y 2026.
