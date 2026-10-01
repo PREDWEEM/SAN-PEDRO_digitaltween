@@ -326,6 +326,8 @@ def run_predweem(
     df["EMERAC"] = df["EMERREL"].cumsum()
     df["EMERAC_NORMALIZADA"], df["Reserva_Cohorte_Remanente"] = cohort_progress(df)
     df["Normalizacion_Modo"] = "fracción del reservorio inicial modelado"
+    df["Normalizacion_Disponible"] = True
+    df["Normalizacion_Motivo"] = ""
     df["Total_EMERREL_Referencia"] = 1.0
     # normalization_as_of se mantiene en la API; jamás fija el denominador.
     if seasonal_reference is not None:

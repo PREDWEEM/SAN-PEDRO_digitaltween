@@ -29,7 +29,7 @@
   "season_complete_basis": "Declaración del usuario del 20/09/2026 para esta fuente exacta; el ajuste conserva sus intervalos y escala auxiliar.",
   "observations_start": "2026-02-01",
   "initial_zero_reference": true,
-  "model_fingerprint": "a49cb6fb2a6192ac3dcaa47cdf4c7aeb855ba661a427b4075aa98a397154e971",
+  "model_fingerprint": "da61eb3fb7fda39006fd694f04a988da80effb267c2d200806adc47720e4593a",
   "model_parameters": {
     "cobertura_pct": 17.117654787448153,
     "w_max": 21.835296520312887,
@@ -139,5 +139,16 @@
     "Un parámetro en su límite indica que persisten diferencias estructurales.",
     "El ajuste no reduce automáticamente la incertidumbre de asimilación.",
     "Los gráficos de la campaña de ajuste son retrospectivos, no predicciones independientes."
-  ]
+  ],
+  "normalization_revision": {
+    "date": "2026-10-01",
+    "previous_model_fingerprint": "a49cb6fb2a6192ac3dcaa47cdf4c7aeb855ba661a427b4075aa98a397154e971",
+    "verification": "Reproducido el ajuste en la fecha de cierre original; parámetros y errores de ajuste sin cambios. La disponibilidad operativa ya no se sustituye por cero.",
+    "parameters_unchanged": true,
+    "fit_metrics_unchanged": true,
+    "metrics_checked": [
+      "rmse_base_units",
+      "rmse_calibrated_units"
+    ]
+  }
 }

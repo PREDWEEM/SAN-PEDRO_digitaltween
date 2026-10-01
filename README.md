@@ -349,3 +349,18 @@ reproducción de ambas referencias, termohidria continua, datos adjuntos y unida
 perfil reproducible, asimilación, cobertura, meteorología y cierre de campaña.
 GitHub Actions ejecuta las pruebas automáticamente. La procedencia científica
 está documentada en [MODEL_PROVENANCE.md](MODEL_PROVENANCE.md).
+
+
+## Disponibilidad operativa de porcentajes (01/10/2026)
+
+**Disponibilidad de la normalización:** el motor SP-FINAL conserva el
+reservorio inicial fijo (1) como denominador. El histórico San Pedro 2025–2026
+es orientativo y no reemplaza esta escala. Extender el horizonte no modifica
+el porcentaje pasado, salvo redondeo numérico. Se exportan los indicadores
+`Normalizacion_Disponible` y `Normalizacion_Motivo`.
+
+La asimilación, los gráficos y la persistencia distinguen porcentaje desconocido
+de flujo cero. Si se recibe una trayectoria sin normalización válida, el estado
+se muestra como “aún no estimable”, no como intensidad Nula. Los conteos originales
+se conservan y se reutilizan al disponer de escala; las bases previas migran
+sin perder registros. Estas protecciones no sustituyen el motor de reservorio.
