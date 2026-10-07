@@ -29,7 +29,7 @@
   "season_complete_basis": "Declaración del usuario del 20/09/2026 para esta fuente exacta; el ajuste conserva sus intervalos y escala auxiliar.",
   "observations_start": "2026-02-01",
   "initial_zero_reference": true,
-  "model_fingerprint": "5cc070c2b6f76b19fb864c6c56296e2ed93738e0f38afb98be97cf1c5d7ca28c",
+  "model_fingerprint": "8c7da8a1fd4bc996a6fbcf2e838dea5f03200c4b4590c9e6a1d619b5cfc1ca8d",
   "model_parameters": {
     "cobertura_pct": 17.117654787448153,
     "w_max": 21.835296520312887,
@@ -154,7 +154,7 @@
   "pool_revision": {
     "date": "2026-10-07",
     "previous_model_fingerprint": "da61eb3fb7fda39006fd694f04a988da80effb267c2d200806adc47720e4593a",
-    "change": "Se incorporan San Pedro 2023 y 2024 (plantas/m², origen San Pedro declarado por el usuario) al pool histórico descriptivo. Se conserva su meteorología (estación no informada) sin uso en el motor.",
+    "change": "Se incorporan San Pedro 2023 y 2024 (plantas/m², origen San Pedro declarado por el usuario) al pool histórico descriptivo. Se conserva su meteorología (estación San Pedro según el usuario, código no informado) sin uso en el motor.",
     "verification": "Ajuste reproducido con la referencia ampliada: parámetros, validación y RMSE sin cambios salvo ruido numérico de redondeo (~1e-14). La referencia no entra en el denominador del reservorio ni en el ajuste.",
     "parameters_unchanged": true,
     "fit_metrics_unchanged": true
