@@ -21,7 +21,11 @@
       "weather_sha256": "f2c86ac776ebb4bd336a8472de77e12b51579d97d8fb8ce2ce3bca910ce52d07",
       "weather_start": "2023-01-01",
       "weather_end": "2023-08-31",
-      "weather_rows": 243
+      "weather_rows": 243,
+      "weather_original_file": "san_pedro_2023_weather_original.xlsx",
+      "weather_file": "san_pedro_2023_weather.csv",
+      "weather_csv_sha256": "f8d830c0fef9dbce4552053221525cb33c417650634b67d91a28406ad55108df",
+      "weather_columns": "Fecha, TMAX, TMIN (°C), Prec (mm); diaria, sin huecos ni duplicados"
     },
     "2024": {
       "uploaded_filename": "valida2024.xlsx",
@@ -37,11 +41,16 @@
       "weather_sha256": "3f295b06e9280120dc047d9736c180a3624479e232c0f9bda1559347fa314fc8",
       "weather_start": "2024-01-01",
       "weather_end": "2024-09-30",
-      "weather_rows": 274
+      "weather_rows": 274,
+      "weather_original_file": "san_pedro_2024_weather_original.xlsx",
+      "weather_file": "san_pedro_2024_weather.csv",
+      "weather_csv_sha256": "86d914136f265b10d403b66a2168c6c4de487f9b825bf2cc028fc353367d994e",
+      "weather_columns": "Fecha, TMAX, TMIN (°C), Prec (mm); diaria, sin huecos ni duplicados"
     }
   },
-  "weather_note": "La meteorología (columnas Fecha, Tmax, Tmin, Prec; sin código de estación informado) se recibió y se evaluó, pero NO se incorpora al repositorio: el pool sólo usa conteos. Se registran sus hashes para trazabilidad. Termina antes del último conteo de cada año (31/08/2023 y 30/09/2024).",
+  "weather_note": "La meteorología (Fecha, Tmax, Tmin, Prec) se conserva como archivo fijo con su hash, pero NO es usada por el pool ni por el motor. No se informó la estación ni la fuente, por lo que no se la mezcla con SIGA A872890 ni se usa para calibrar. Termina antes del último conteo de cada año (31/08/2023 y 30/09/2024).",
   "no_initial_zero": "Ninguna de las dos series incluye un conteo en cero antes del primero. El primer conteo (2023: 340 plantas/m² el 14/04; 2024: 87 el 16/03) no delimita su intervalo; no se infiere ausencia de emergencia anterior.",
   "completeness": "Ambas series terminan con conteos en cero (2023: 15/08 al 01/10; 2024: 17/10, tras valores marginales de 7–27 en agosto–septiembre). El cierre se infiere de esos ceros finales; el usuario no lo declaró expresamente.",
-  "station_not_specified": true
+  "station_not_specified": true,
+  "weather_used_by_model": false
 }

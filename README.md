@@ -104,8 +104,9 @@ disponible de cada una:
   **Ninguna serie tiene un cero inicial**: la curva empieza en el primer conteo
   (2023: 17,5 % del total; 2024: 1,3 %), queda desconocida antes y no certifica
   ausencia previa de emergencia. El cierre se infiere de los ceros finales; el
-  usuario no lo declaró expresamente. La meteorología recibida (sin estación
-  informada, hasta 31/08/2023 y 30/09/2024) no se incorpora; sólo se registran sus hashes.
+  usuario no lo declaró expresamente. La meteorología recibida (Tmax, Tmin, Prec diarias; estación no
+  informada; hasta 31/08/2023 y 30/09/2024) se conserva como archivo fijo con su hash
+  (`san_pedro_{2023,2024}_weather*`), pero ni el pool ni el motor la usan.
 - **2025:** curva diaria ya procesada `emrel sp 2025 san pedro.xlsx`, guardada en
   el clasificador original. Se acumula su flujo y se divide por su suma. Aquí
   no están los conteos ni la meteorología originales de ese año.

@@ -231,3 +231,21 @@ def test_historical_flow_is_mean_of_campaigns_with_data_on_both_days():
                                atol=1e-14)
     assert two.Flujo_Diario.sum() == pytest.approx(1)
     np.testing.assert_allclose(two.Flujo_Diario.cumsum(), two.Progreso_Mediano)
+
+
+@pytest.mark.parametrize("year", [2023, 2024])
+def test_2023_2024_weather_is_preserved_but_unused(year):
+    import json
+    from hashlib import sha256
+    source = json.loads((ROOT / "data/reference/san_pedro_2023_2024_source.json").read_text(encoding="utf-8"))
+    info = source["campaigns"][str(year)]
+    assert source["weather_used_by_model"] is False
+    for key, digest in (("weather_original_file", "weather_sha256"), ("weather_file", "weather_csv_sha256")):
+        assert sha256((ROOT / "data/reference" / info[key]).read_bytes()).hexdigest() == info[digest]
+    original = pd.read_excel(ROOT / "data/reference" / info["weather_original_file"])
+    weather = pd.read_csv(ROOT / "data/reference" / info["weather_file"], parse_dates=["Fecha"])
+    np.testing.assert_array_equal(weather[["TMAX", "TMIN", "Prec"]].to_numpy(float),
+                                  original[["Tmax", "Tmin", "Prec"]].to_numpy(float))
+    assert weather.Fecha.iloc[0] == pd.Timestamp(f"{year}-01-01")
+    assert weather.Fecha.diff().dropna().eq(pd.Timedelta(days=1)).all()
+    assert len(weather) == info["weather_rows"] and weather.Fecha.iloc[-1] == pd.Timestamp(info["weather_end"])
