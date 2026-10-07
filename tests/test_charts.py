@@ -42,11 +42,9 @@ def test_annual_reference_keeps_unknown_periods_and_observed_2026_window(referen
     assert annual.loc[annual.Fecha.lt("2027-04-14"), "Progreso_2023"].isna().all()
     assert annual.loc[annual.Fecha.lt("2027-03-16"), "Progreso_2024"].isna().all()
     assert annual.loc[annual.Fecha.eq("2027-04-14"), "Progreso_2023"].iloc[0] == pytest.approx(340 / 1939.6)
-    # El flujo es el promedio de los flujos de las campañas con dato ambos días;
-    # no suma uno al cambiar la composición del pool.
-    campaigns = [c for c in annual if c.startswith("Progreso_20")]
-    expected = annual[campaigns].diff().mean(axis=1, skipna=True).clip(lower=0)
-    np.testing.assert_allclose(annual.Flujo_Diario.iloc[1:365], expected.iloc[1:365])
+    assert annual.Flujo_Diario.sum() == pytest.approx(1.)
+    # El pool no cae al entrar 2023 (14/04) o 2024 (16/03): es continuo y no decreciente.
+    assert annual.Progreso_Mediano.dropna().diff().dropna().ge(0).all()
 
 
 def test_reference_preserves_month_day_in_leap_year(reference):

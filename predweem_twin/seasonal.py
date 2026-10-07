@@ -75,8 +75,26 @@ def load_seasonal_reference(source: str | Path, as_of=None) -> pd.DataFrame:
         reference[f"Progreso_{year}"] = values
     columns = [f"Progreso_{item['year']}" for item in campaigns]
     reference["Progreso_Min"] = reference[columns].min(axis=1)
-    reference["Progreso_Mediano"] = reference[columns].median(axis=1)
     reference["Progreso_Max"] = reference[columns].max(axis=1)
+    # Una campaña sin cero inicial no es "desconocida" antes de su primer
+    # conteo: por ser un acumulado, no puede superar la fracción de ese conteo.
+    # Para la mediana se la incluye con ese tope (cota superior; no se inventa
+    # ausencia de emergencia). Así la mediana no cae al entrar la campaña y es
+    # continua. La cota inferior (0) se conserva para mostrar la incertidumbre.
+    upper = reference[columns].copy()
+    lower = reference[columns].copy()
+    for item in campaigns:
+        if item.get("initial_zero") is not False:
+            continue
+        name = f"Progreso_{item['year']}"
+        first = reference[name].first_valid_index()
+        upper.loc[:first - 1, name] = reference.loc[first, name]
+        lower.loc[:first - 1, name] = 0.0
+    observed = reference[columns].notna().any(axis=1)
+    # El anclaje no decreciente sólo actúa si cambia la composición (p. ej.
+    # el 01/02, cuando 2026 entra en 0); evita caídas ficticias del pool.
+    reference["Progreso_Mediano"] = upper.median(axis=1).where(observed).cummax()
+    reference["Progreso_Mediano_Cota_Inferior"] = lower.median(axis=1).where(observed).cummax()
     reference["N_Campanas_Dia"] = reference[columns].notna().sum(axis=1)
     reference["N_Campanas"] = len(campaigns)
     reference["Campanas"] = ", ".join(str(item["year"]) for item in campaigns)

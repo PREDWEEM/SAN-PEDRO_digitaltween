@@ -78,7 +78,9 @@ archivos de referencia (`pool_revision` en el perfil).
 
 La combinación descriptiva utiliza el mismo peso por campaña y rango mínimo–máximo,
 sin presentarlo como intervalo de confianza. Antes del 01/02 la referencia
-2026 queda vacía, y las de 2023 y 2024 antes de su primer conteo; después del cierre declarado se mantiene en uno. Sólo se
+2026 queda vacía, y las de 2023 y 2024 antes de su primer conteo (para la mediana,
+esas dos campañas se incluyen allí con su primer conteo como cota superior y con 0 como
+cota inferior, lo que evita una caída ficticia del pool); después del cierre declarado se mantiene en uno. Sólo se
 muestran referencias cuyo cierre es anterior o igual a la fecha de corte.
 Su disponibilidad por fecha es una salvaguarda de la presentación, no una
 reconstrucción de los pronósticos efectivamente emitidos en aquel momento.

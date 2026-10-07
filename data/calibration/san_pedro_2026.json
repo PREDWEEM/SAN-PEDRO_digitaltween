@@ -29,7 +29,7 @@
   "season_complete_basis": "Declaración del usuario del 20/09/2026 para esta fuente exacta; el ajuste conserva sus intervalos y escala auxiliar.",
   "observations_start": "2026-02-01",
   "initial_zero_reference": true,
-  "model_fingerprint": "31f2b4517fe314bd38522692e89217a0c018578cc11226eedd69277ec6f96c47",
+  "model_fingerprint": "187eefb31b80815d8f029c72893dcba822cc99abe6881dfaf27ab369bf2c9a55",
   "model_parameters": {
     "cobertura_pct": 17.117654787448153,
     "w_max": 21.835296520312887,
@@ -157,6 +157,7 @@
     "change": "Se incorporan San Pedro 2023 y 2024 (plantas/m², origen San Pedro declarado por el usuario) al pool histórico descriptivo.",
     "verification": "Ajuste reproducido con la referencia ampliada: parámetros, validación y RMSE sin cambios salvo ruido numérico de redondeo (~1e-14). La referencia no entra en el denominador del reservorio ni en el ajuste.",
     "parameters_unchanged": true,
-    "fit_metrics_unchanged": true
+    "fit_metrics_unchanged": true,
+    "median_revision": "2026-10-07: la mediana del pool incluye 2023 y 2024 antes de su primer conteo con ese conteo como cota superior (evita una caída ficticia). Parámetros y ajuste sin cambios; sólo cambia el fingerprint."
   }
 }
