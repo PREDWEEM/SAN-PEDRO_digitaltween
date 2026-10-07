@@ -103,7 +103,7 @@ def load_model(runtime_revision):
 
 def load_progress_reference(as_of):
     return load_seasonal_reference(
-        BASE / "data/reference/san_pedro_2025_2026.json", as_of=as_of,
+        BASE / "data/reference/san_pedro_2023_2026.json", as_of=as_of,
     )
 
 
@@ -341,9 +341,10 @@ if source_option == "SIGA San Pedro + ECMWF operativa":
 st.caption(
     f"Pool histórico exclusivo de San Pedro: {reference_years} ({reference_count_label}). "
     "No se incorporan curvas de otras localidades ni años. "
-    "Se incorporan 2025 y 2026 como completas según su declaración; "
-    "2026 se muestra desde su último conteo, el 15/07/2026. "
-    "El motor SP-FINAL ya utilizó ambos años para calibrarse."
+    "2025 y 2026 se incorporan como completas según su declaración; 2023 y 2024 "
+    "(plantas/m², sin cero inicial) se muestran desde su último conteo y empiezan en su primer "
+    "conteo, sin certificar ausencia previa. "
+    "El motor SP-FINAL ya utilizó 2025 y 2026 para calibrarse; 2023 y 2024 son sólo referencia descriptiva."
 )
 if not forecast_metadata["complete"]:
     st.warning(
@@ -565,7 +566,7 @@ with tab_state:
         "El porcentaje del gemelo expresa un potencial modelado, cuyo agotamiento no se "
         "garantiza al cierre. El remanente es una estimación, no una medición del banco de semillas."
     )
-    with st.expander("Referencias 2025 y 2026 y cálculo del porcentaje"):
+    with st.expander("Referencias 2023–2026 y cálculo del porcentaje"):
         reference_row = base_trajectory.loc[base_trajectory.Fecha <= pd.Timestamp(as_of)].iloc[-1]
         st.write(
             f"En esta fecha, la mediana histórica es {reference_row.Progreso_Estacional_Referencia:.1%} "
@@ -574,11 +575,13 @@ with tab_state:
             "Este rango describe las campañas disponibles; no es un intervalo de confianza."
         )
         st.write(
+            "2023 y 2024: conteos en plantas/m² de San Pedro (14/04–01/10/2023 y 16/03–17/10/2024), "
+            "acumulados e interpolados entre muestreos. No tienen un cero inicial: cada curva "
+            "empieza en su primer conteo y antes de esa fecha queda desconocida. "
             "2025: únicamente la curva San Pedro 2025 conservada en el clasificador original. "
             "2026: acumulados de los 12 conteos del 01/02 al 15/07, interpolados entre muestreos. "
-            "Antes del 01/02, el pool utiliza sólo 2025; desde esa fecha ambas campañas "
-            "aportan igual peso a la mediana. Los días previos de 2026 quedan desconocidos. "
-            "No se agregan conteos tras el cierre declarado ni se transfieren totales como densidad del lote."
+            "Cada día la mediana usa sólo las campañas con dato (columna N_Campanas_Dia), con igual peso. "
+            "No se agregan conteos tras el cierre ni se transfieren totales como densidad del lote."
         )
         st.dataframe(seasonal_reference, hide_index=True, width="stretch")
         st.download_button(

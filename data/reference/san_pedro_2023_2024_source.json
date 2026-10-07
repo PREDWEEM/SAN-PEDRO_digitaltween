@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "site": "San Pedro",
+  "provided_by_user_on": "2026-10-07",
+  "origin_declared_by_user": "Los datos provienen de San Pedro (declaración del usuario, 07/10/2026).",
+  "units": "plantas/m² (declarado por el usuario, 07/10/2026)",
+  "density_units_confirmed": true,
+  "role": "referencias descriptivas del pool histórico; no calibran ni entrenan el motor",
+  "campaigns": {
+    "2023": {
+      "uploaded_filename": "valida2023.xlsx",
+      "original_file": "san_pedro_2023_original.xlsx",
+      "original_sha256": "b0c28387985ee1dbb91c97c70fb3c9a335cab895072c2985f107edcfb763a891",
+      "counts_file": "san_pedro_2023_counts.csv",
+      "counts_sha256": "bba773ca6badf9459e087f52abf30649749f8f484051d96be7d5e52e4a6a223b",
+      "first_count": "2023-04-14",
+      "last_count": "2023-10-01",
+      "samples": 9,
+      "initial_zero": false,
+      "weather_uploaded_filename": "meteo2023.xlsx",
+      "weather_sha256": "f2c86ac776ebb4bd336a8472de77e12b51579d97d8fb8ce2ce3bca910ce52d07",
+      "weather_start": "2023-01-01",
+      "weather_end": "2023-08-31",
+      "weather_rows": 243
+    },
+    "2024": {
+      "uploaded_filename": "valida2024.xlsx",
+      "original_file": "san_pedro_2024_original.xlsx",
+      "original_sha256": "4f7accdfe1c407bc711d3cfeb2ec40bdf36c1f0c4d8baed4a7f2393141869d97",
+      "counts_file": "san_pedro_2024_counts.csv",
+      "counts_sha256": "cbc90d67b8138d08727250ba73bd5d7e41b50fa8bfde0761cbda090fc3102b39",
+      "first_count": "2024-03-16",
+      "last_count": "2024-10-17",
+      "samples": 15,
+      "initial_zero": false,
+      "weather_uploaded_filename": "meteo2024.xlsx",
+      "weather_sha256": "3f295b06e9280120dc047d9736c180a3624479e232c0f9bda1559347fa314fc8",
+      "weather_start": "2024-01-01",
+      "weather_end": "2024-09-30",
+      "weather_rows": 274
+    }
+  },
+  "weather_note": "La meteorología (columnas Fecha, Tmax, Tmin, Prec; sin código de estación informado) se recibió y se evaluó, pero NO se incorpora al repositorio: el pool sólo usa conteos. Se registran sus hashes para trazabilidad. Termina antes del último conteo de cada año (31/08/2023 y 30/09/2024).",
+  "no_initial_zero": "Ninguna de las dos series incluye un conteo en cero antes del primero. El primer conteo (2023: 340 plantas/m² el 14/04; 2024: 87 el 16/03) no delimita su intervalo; no se infiere ausencia de emergencia anterior.",
+  "completeness": "Ambas series terminan con conteos en cero (2023: 15/08 al 01/10; 2024: 17/10, tras valores marginales de 7–27 en agosto–septiembre). El cierre se infiere de esos ceros finales; el usuario no lo declaró expresamente.",
+  "station_not_specified": true
+}

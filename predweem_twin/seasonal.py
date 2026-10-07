@@ -11,6 +11,8 @@ import pandas as pd
 
 
 LOCAL_CAMPAIGNS = {
+    2023: "data/reference/san_pedro_2023_counts.csv",
+    2024: "data/reference/san_pedro_2024_counts.csv",
     2025: "models/modelo_clusters_k3.pkl",
     2026: "data/calibration/san_pedro_2026_counts.csv",
 }
@@ -20,7 +22,9 @@ def load_seasonal_reference(source: str | Path, as_of=None) -> pd.DataFrame:
     """Carga curvas completas sin utilizar cierres posteriores al corte.
 
     Cada campaña aporta el mismo peso. El rango es mínimo–máximo observado,
-    no un intervalo probabilístico. Las curvas son contexto descriptivo y no
+    no un intervalo probabilístico. Cada día usa sólo las campañas con dato en
+    esa fecha (`N_Campanas_Dia`): 2023 y 2024 no tienen cero inicial y su curva
+    empieza en el primer conteo, sin certificar ausencia previa. Las curvas son contexto descriptivo y no
     intervienen en el denominador del porcentaje calculado por el motor.
     """
     source = Path(source)
@@ -39,8 +43,8 @@ def load_seasonal_reference(source: str | Path, as_of=None) -> pd.DataFrame:
                     != "emrel sp 2025 san pedro.xlsx")):
             raise ValueError(f"Procedencia local inválida para San Pedro {year}.")
         local.append(item)
-    if sorted(item["year"] for item in local) != [2025, 2026]:
-        raise ValueError("Se requiere una única referencia de San Pedro 2025 y 2026.")
+    if sorted(item["year"] for item in local) != sorted(LOCAL_CAMPAIGNS):
+        raise ValueError("Se requiere una única referencia de San Pedro 2023, 2024, 2025 y 2026.")
     data_path = source.parent / manifest["curves_file"]
     if sha256(data_path.read_bytes()).hexdigest() != manifest["curves_sha256"]:
         raise ValueError("Las curvas estacionales no coinciden con su procedencia.")
@@ -77,9 +81,15 @@ def load_seasonal_reference(source: str | Path, as_of=None) -> pd.DataFrame:
     reference["N_Campanas"] = len(campaigns)
     reference["Campanas"] = ", ".join(str(item["year"]) for item in campaigns)
     reference["Campanas_Anos"] = reference["Campanas"]
+    available = {item["year"] for item in campaigns}
+    pending = [str(year) for year in sorted(LOCAL_CAMPAIGNS) if year not in available]
     reference["Campanas_Excluidas"] = (
-        "Todas las localidades y campañas excepto San Pedro 2025 y San Pedro 2026"
-        + ("; San Pedro 2026 no disponible al corte" if len(campaigns) == 1 else "")
+        "Todas las localidades y campañas excepto "
+        + ", ".join(f"San Pedro {year}" for year in sorted(LOCAL_CAMPAIGNS))
+        + ("; no disponibles al corte: San Pedro " + ", ".join(pending) if pending else "")
+    )
+    reference["Campanas_Sin_Cero_Inicial"] = ", ".join(
+        str(item["year"]) for item in campaigns if item.get("initial_zero") is False
     )
     reference.attrs["campaigns"] = campaigns
     return reference
