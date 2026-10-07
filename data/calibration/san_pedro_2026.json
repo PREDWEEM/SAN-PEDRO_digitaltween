@@ -29,7 +29,7 @@
   "season_complete_basis": "Declaración del usuario del 20/09/2026 para esta fuente exacta; el ajuste conserva sus intervalos y escala auxiliar.",
   "observations_start": "2026-02-01",
   "initial_zero_reference": true,
-  "model_fingerprint": "da61eb3fb7fda39006fd694f04a988da80effb267c2d200806adc47720e4593a",
+  "model_fingerprint": "31f2b4517fe314bd38522692e89217a0c018578cc11226eedd69277ec6f96c47",
   "model_parameters": {
     "cobertura_pct": 17.117654787448153,
     "w_max": 21.835296520312887,
@@ -61,10 +61,10 @@
       "2010",
       "2015"
     ],
-    "scope": "Referencias descriptivas completas San Pedro 2025 y 2026",
+    "scope": "Referencias descriptivas completas San Pedro 2023, 2024, 2025 y 2026",
     "normalization": "fracción del reservorio inicial modelado; referencias sin efecto sobre el denominador",
-    "n_campaigns": 2,
-    "campaigns": "2025, 2026"
+    "n_campaigns": 4,
+    "campaigns": "2023, 2024, 2025, 2026"
   },
   "source": {
     "uploaded_filename": "valida (1) (6).xlsx",
@@ -133,7 +133,7 @@
     "Cobertura de 17.1177 % y Wmax de 21.8353 mm son supuestos de la configuración operativa; el archivo no informa manejo ni cobertura.",
     "El archivo fecha + plantas no informa superficie ni repeticiones. Se mantiene su escala sin convertir a plantas/m². Se utiliza un piso de ponderación común, no un error de muestreo medido.",
     "Se conserva SP-FINAL-2025-2026: interacción termohídrica continua y reservorio causal de cohorte con parámetros originales congelados.",
-    "Referencias descriptivas 2025 y 2026: rango observado, no intervalo de confianza. El motor base ya fue calibrado con ambos años; los datos no constituyen evidencia independiente.",
+    "Referencias descriptivas 2023–2026: rango observado, no intervalo de confianza. El motor base ya fue calibrado con 2025 y 2026; esos años no constituyen evidencia independiente. 2023 y 2024 no participan de la calibración y no tienen cero inicial.",
     "La meteorología del ajuste incluye 193 días SIGA observados y tres provisionales ECMWF (9–11 de junio); no se ocultan esos huecos de estación.",
     "La transformación no crea cohortes en fechas bloqueadas por el motor biofísico.",
     "Un parámetro en su límite indica que persisten diferencias estructurales.",
@@ -150,5 +150,13 @@
       "rmse_base_units",
       "rmse_calibrated_units"
     ]
+  },
+  "pool_revision": {
+    "date": "2026-10-07",
+    "previous_model_fingerprint": "da61eb3fb7fda39006fd694f04a988da80effb267c2d200806adc47720e4593a",
+    "change": "Se incorporan San Pedro 2023 y 2024 (plantas/m², origen San Pedro declarado por el usuario) al pool histórico descriptivo.",
+    "verification": "Ajuste reproducido con la referencia ampliada: parámetros, validación y RMSE sin cambios salvo ruido numérico de redondeo (~1e-14). La referencia no entra en el denominador del reservorio ni en el ajuste.",
+    "parameters_unchanged": true,
+    "fit_metrics_unchanged": true
   }
 }

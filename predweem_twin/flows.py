@@ -9,7 +9,7 @@ import pandas as pd
 def annual_historical_reference(reference, as_of):
     """Traslada el pool local al calendario consultado sin extender el pronóstico.
 
-    Se usa la mediana de las referencias locales San Pedro 2025 y 2026 disponibles.
+    Se usa la mediana de las referencias locales San Pedro 2023–2026 disponibles.
     Se mantiene el valor uno tras los cierres declarados completos, sin agregar conteos.
     El calendario de visualización trata ese eje como días de un año de 365
     días; en años bisiestos interpola el 29 de febrero. No reconstruye las
@@ -33,9 +33,22 @@ def annual_historical_reference(reference, as_of):
             days, axis, reference[column].to_numpy(float),
             left=np.nan, right=np.nan,
         )
-    frame["Flujo_Diario"] = frame["Progreso_Mediano"].diff().clip(lower=0)
-    if axis[0] == 1:
-        frame.loc[0, "Flujo_Diario"] = frame.loc[0, "Progreso_Mediano"]
+    # Flujo medio de las campañas con dato en ambos días consecutivos. Una
+    # campaña sin cero inicial (2023, 2024) entra al pool en su primer conteo
+    # sin generar un salto artificial en la mediana. Con 2025 y 2026 equivale a
+    # la derivada de la mediana; con más campañas no suma uno ni sigue a la
+    # mediana de progreso. Es un indicador descriptivo.
+    campaign_columns = [column for column in columns if column != "Progreso_Mediano"]
+    if campaign_columns:
+        daily = frame[campaign_columns].diff()
+        frame["Flujo_Diario"] = daily.mean(axis=1, skipna=True).clip(lower=0)
+        if axis[0] == 1:
+            first = frame.loc[0, campaign_columns].dropna()
+            frame.loc[0, "Flujo_Diario"] = float(first.mean()) if len(first) else 0.0
+    else:
+        frame["Flujo_Diario"] = frame["Progreso_Mediano"].diff().clip(lower=0)
+        if axis[0] == 1:
+            frame.loc[0, "Flujo_Diario"] = frame.loc[0, "Progreso_Mediano"]
     frame.attrs["campaigns"] = reference["Campanas_Anos"].iloc[0]
     return frame
 

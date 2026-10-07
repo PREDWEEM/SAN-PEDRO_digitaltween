@@ -30,7 +30,7 @@ RESERVOIR = SITE_KEY == 'san_pedro'
 def reference_at(cutoff):
     if RESERVOIR:
         from predweem_twin.seasonal import load_seasonal_reference
-        return load_seasonal_reference(ROOT / 'data/reference/san_pedro_2025_2026.json', as_of=cutoff)
+        return load_seasonal_reference(ROOT / 'data/reference/san_pedro_2023_2026.json', as_of=cutoff)
     from predweem_twin.seasonal import load_local_seasonal_reference
     return load_local_seasonal_reference(ROOT, as_of=cutoff)
 

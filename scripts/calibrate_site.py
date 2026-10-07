@@ -70,7 +70,7 @@ def build_calibration(observations_path, weather_path, output_path, site="San Pe
         raise ValueError("La calibración histórica no admite filas de pronóstico.")
     model = PracticalANNModel.from_directory(ROOT / "models")
     reference = load_seasonal_reference(
-        ROOT / "data/reference/san_pedro_2025_2026.json", as_of=last_count,
+        ROOT / "data/reference/san_pedro_2023_2026.json", as_of=last_count,
     )
     parameters = ModelParameters(cobertura_pct=coverage, w_max=w_max)
 
@@ -79,7 +79,7 @@ def build_calibration(observations_path, weather_path, output_path, site="San Pe
             weather.loc[weather["Fecha"] <= (end if end is not None else cutoff)],
             model, parameters, normalization_as_of=cutoff,
             seasonal_reference=load_seasonal_reference(
-                ROOT / "data/reference/san_pedro_2025_2026.json", as_of=cutoff,
+                ROOT / "data/reference/san_pedro_2023_2026.json", as_of=cutoff,
             ),
         )
 

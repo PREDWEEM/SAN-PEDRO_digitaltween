@@ -18,7 +18,7 @@ CUTOFF = pd.Timestamp("2027-05-05")
 
 @pytest.fixture
 def reference():
-    return load_seasonal_reference(ROOT / "data/reference/san_pedro_2025_2026.json", as_of=CUTOFF)
+    return load_seasonal_reference(ROOT / "data/reference/san_pedro_2023_2026.json", as_of=CUTOFF)
 
 
 def forecast(total=.12, cutoff=CUTOFF):
@@ -55,8 +55,8 @@ def test_intensity_thresholds_and_future_flow_sum(reference, ratio, level):
 @pytest.mark.parametrize("cutoff", ["2026-05-05", "2026-09-22", "2027-05-05", "2028-05-05"])
 def test_peak_matches_complete_historical_bars_and_available_pool(cutoff):
     cutoff = pd.Timestamp(cutoff)
-    reference = load_seasonal_reference(ROOT / "data/reference/san_pedro_2025_2026.json", as_of=cutoff)
-    expected_years = "2025" if cutoff < pd.Timestamp("2026-07-15") else "2025, 2026"
+    reference = load_seasonal_reference(ROOT / "data/reference/san_pedro_2023_2026.json", as_of=cutoff)
+    expected_years = "2023, 2024, 2025" if cutoff < pd.Timestamp("2026-07-15") else "2023, 2024, 2025, 2026"
     assert reference.Campanas_Anos.iloc[0] == expected_years
     frame = forecast(cutoff=cutoff)
     weekly, _ = trajectory_charts(frame, None, cutoff, seasonal_reference=reference, flow_frequency="Semanal")
@@ -108,7 +108,8 @@ def test_missing_or_zero_historical_peak_is_not_a_low_intensity(reference, mode)
         reference = None
     else:
         reference = reference.copy()
-        reference["Progreso_Mediano"] = 0.
+        progress = [c for c in reference if c.startswith("Progreso_")]
+        reference[progress] = 0.
     result = weekly_flow_intensity(forecast(), CUTOFF, reference)
     assert result["increment_7d"] == pytest.approx(.12)
     assert result["historical_weekly_max"] is None

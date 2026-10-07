@@ -62,11 +62,23 @@ conserva exactamente el acumulado de los conteos por intervalos y luego lo
 interpola. No se dispone de conteos ni meteorología originales de 2025 en este
 repositorio. No se convierten unidades ni se equipara la precisión temporal
 de ambas fuentes. Sus hashes, métodos y límites se registran en
-`data/reference/san_pedro_2025_2026.json`.
+`data/reference/san_pedro_2023_2026.json`.
+
+Revisión del 07/10/2026: se agregan al pool descriptivo San Pedro 2023 y 2024,
+conteos en plantas/m² de San Pedro aportados por el usuario (`valida2023.xlsx`,
+`valida2024.xlsx`; Excel original, CSV y hashes en `data/reference/`, resumen en
+`san_pedro_2023_2024_source.json`). Ninguna serie tiene un cero inicial: cada curva
+empieza en su primer conteo y no certifica ausencia previa de emergencia. Su cierre
+se infiere de los ceros finales. La meteorología recibida (`meteo2023.xlsx`,
+`meteo2024.xlsx`; estación no informada) no se incorpora. 2023 y 2024 no participan
+en la calibración del motor ni en el ajuste de la capa 2026: son contexto descriptivo
+y no son evidencia independiente de desempeño. El perfil de calibración conserva sus
+parámetros y su RMSE; sólo cambia el fingerprint del modelo, que incluye los nuevos
+archivos de referencia (`pool_revision` en el perfil).
 
 La combinación descriptiva utiliza el mismo peso por campaña y rango mínimo–máximo,
 sin presentarlo como intervalo de confianza. Antes del 01/02 la referencia
-2026 queda vacía; después del cierre declarado se mantiene en uno. Sólo se
+2026 queda vacía, y las de 2023 y 2024 antes de su primer conteo; después del cierre declarado se mantiene en uno. Sólo se
 muestran referencias cuyo cierre es anterior o igual a la fecha de corte.
 Su disponibilidad por fecha es una salvaguarda de la presentación, no una
 reconstrucción de los pronósticos efectivamente emitidos en aquel momento.

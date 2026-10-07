@@ -15,7 +15,7 @@ ROOT = Path(__file__).parents[1]
 
 @pytest.fixture
 def reference():
-    return load_seasonal_reference(ROOT / "data/reference/san_pedro_2025_2026.json", as_of="2027-05-05")
+    return load_seasonal_reference(ROOT / "data/reference/san_pedro_2023_2026.json", as_of="2027-05-05")
 
 
 def trajectory():
@@ -37,7 +37,16 @@ def test_annual_reference_keeps_unknown_periods_and_observed_2026_window(referen
     last_day = pd.Timestamp("2027-01-01") + pd.Timedelta(days=reference.Julian_days.max() - 1)
     outside = annual.Fecha.gt(last_day)
     assert annual.loc[outside, ["Progreso_Mediano", "Flujo_Diario"]].isna().all().all()
-    assert annual.Flujo_Diario.sum() == pytest.approx(1.)
+    # 2023 y 2024 no tienen cero inicial: quedan vacías antes de su primer conteo
+    # y entran con la masa de ese conteo, sin generar flujo previo.
+    assert annual.loc[annual.Fecha.lt("2027-04-14"), "Progreso_2023"].isna().all()
+    assert annual.loc[annual.Fecha.lt("2027-03-16"), "Progreso_2024"].isna().all()
+    assert annual.loc[annual.Fecha.eq("2027-04-14"), "Progreso_2023"].iloc[0] == pytest.approx(340 / 1939.6)
+    # El flujo es el promedio de los flujos de las campañas con dato ambos días;
+    # no suma uno al cambiar la composición del pool.
+    campaigns = [c for c in annual if c.startswith("Progreso_20")]
+    expected = annual[campaigns].diff().mean(axis=1, skipna=True).clip(lower=0)
+    np.testing.assert_allclose(annual.Flujo_Diario.iloc[1:365], expected.iloc[1:365])
 
 
 def test_reference_preserves_month_day_in_leap_year(reference):
@@ -79,10 +88,10 @@ def test_chart_shows_annual_context_without_extending_weather_or_changing_state(
 
 
 def test_historical_backdrop_does_not_leak_2026_into_earlier_cutoffs():
-    ref = load_seasonal_reference(ROOT / "data/reference/san_pedro_2025_2026.json", as_of="2026-05-05")
+    ref = load_seasonal_reference(ROOT / "data/reference/san_pedro_2023_2026.json", as_of="2026-05-05")
     annual = annual_historical_reference(ref, "2026-05-05")
     assert "Progreso_2026" not in annual
-    assert annual.attrs["campaigns"] == "2025"
+    assert annual.attrs["campaigns"] == "2023, 2024, 2025"
 
 
 def test_no_forecast_trace_when_weather_ends_at_cutoff(reference):

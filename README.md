@@ -91,11 +91,21 @@ Los valores de cobertura de respaldo y Wmax permanecen congelados en la interfaz
 La cobertura observada permite explorar una trayectoria distinta cuando el usuario
 la selecciona explícitamente.
 
-## Referencias completas 2025 y 2026 y porcentaje acumulado
+## Referencias completas 2023–2026 y porcentaje acumulado
 
-Se incorporan ambas campañas de San Pedro como completas según la declaración
-del usuario del 20/09/2026, conservando la procedencia disponible:
+El pool histórico descriptivo tiene cuatro campañas de San Pedro, con la procedencia
+disponible de cada una:
 
+- **2023 y 2024** (incorporadas el 07/10/2026): conteos en **plantas/m²** de San
+  Pedro (origen y unidades declarados por el usuario). 2023: 9 muestreos entre
+  14/04 y 01/10; 2024: 15 muestreos entre 16/03 y 17/10. Se conservan el Excel
+  recibido, los conteos en CSV y sus hashes en `data/reference/`. Se acumula y
+  se interpola entre muestreos conservando la masa de cada intervalo.
+  **Ninguna serie tiene un cero inicial**: la curva empieza en el primer conteo
+  (2023: 17,5 % del total; 2024: 1,3 %), queda desconocida antes y no certifica
+  ausencia previa de emergencia. El cierre se infiere de los ceros finales; el
+  usuario no lo declaró expresamente. La meteorología recibida (sin estación
+  informada, hasta 31/08/2023 y 30/09/2024) no se incorpora; sólo se registran sus hashes.
 - **2025:** curva diaria ya procesada `emrel sp 2025 san pedro.xlsx`, guardada en
   el clasificador original. Se acumula su flujo y se divide por su suma. Aquí
   no están los conteos ni la meteorología originales de ese año.
@@ -104,22 +114,28 @@ del usuario del 20/09/2026, conservando la procedencia disponible:
   conservando la masa de cada intervalo. La distribución diaria dentro del
   intervalo es desconocida. Antes del primer conteo la referencia queda vacía.
 
-No se agregan conteos posteriores al 15/07. Después del cierre declarado se
-mantiene la referencia acumulada en 1. Ambas curvas tienen el mismo peso en
-la mediana; el mínimo y máximo describen los años disponibles y **no son
-intervalos de confianza**. Se conservan las exclusiones de 2010 y 2015 al
-seleccionar exclusivamente estas dos campañas locales. La alineación es por
-mes/día, incluido tratamiento explícito del 29 de febrero.
+2025 y 2026 se aceptan como completas por la declaración del usuario del 20/09/2026.
+No se agregan conteos posteriores al cierre; después de él se mantiene la referencia
+acumulada en 1. Cada campaña tiene el mismo peso: la mediana de un día usa sólo las
+campañas con dato esa fecha (`N_Campanas_Dia`). El mínimo y máximo describen los
+años disponibles y **no son intervalos de confianza**. Sólo se muestran campañas
+cuyo último conteo es anterior o igual al corte. Se conservan las exclusiones de 2010
+y 2015. La alineación es por mes/día, con tratamiento explícito del 29 de febrero.
 
-El pool admite **únicamente San Pedro 2025 y San Pedro 2026**. Se verifica el
-sitio y la procedencia de ambas curvas; otras campañas del manifiesto no se
+El pool admite **únicamente San Pedro 2023, 2024, 2025 y 2026**. Se verifica el
+sitio y la procedencia de cada curva; otras campañas del manifiesto no se
 incorporan automáticamente. Los archivos originales del clasificador se conservan,
 pero sus otras curvas no participan del histórico mostrado ni del indicador semanal.
 
 Los gráficos muestran una sola referencia **Pool histórico · orientativo**, sin
 curvas individuales por año. Tanto el flujo como el acumulado provienen de ese
-mismo pool: el flujo es la diferencia diaria de la mediana acumulada. Antes del
-01/02 sólo hay referencia 2025; desde el 01/02 las dos curvas tienen igual peso.
+mismo pool, con una salvedad: el acumulado es la mediana de las campañas con dato
+y el flujo es el **promedio de los flujos diarios de las campañas con dato en ambos
+días consecutivos**. Así, una campaña sin cero inicial (2023, 2024) entra en su
+primer conteo sin crear un salto en el pool; con 2025 y 2026 equivale a la derivada
+de la mediana, pero con más campañas el flujo no suma 1 ni sigue a la mediana.
+El máximo semanal histórico (indicador de intensidad) no cambia con 2023 y 2024:
+la semana pico sigue siendo la de febrero (15/02; 19,2 % para el eje anual completo).
 El detalle del rango, procedencia y descarga está bajo los gráficos y las
 campañas utilizadas y excluidas se identifican en Trazabilidad.
 
@@ -230,7 +246,7 @@ denominador del modelo. La capa adicional y la asimilación pueden corregir el
 progreso Twin; `Reserva_Cohorte_Remanente` conserva el estado del motor base.
 Los totales históricos no se transfieren como densidad a otros lotes.
 
-Datos y procedencia: `data/reference/san_pedro_2025_2026{.json,_curves.csv}`.
+Datos y procedencia: `data/reference/san_pedro_2023_2026{.json,_curves.csv}` y `data/reference/san_pedro_2023_2024_source.json`.
 Para reproducir las referencias sin red:
 
 ```bash
@@ -354,7 +370,7 @@ está documentada en [MODEL_PROVENANCE.md](MODEL_PROVENANCE.md).
 ## Disponibilidad operativa de porcentajes (01/10/2026)
 
 **Disponibilidad de la normalización:** el motor SP-FINAL conserva el
-reservorio inicial fijo (1) como denominador. El histórico San Pedro 2025–2026
+reservorio inicial fijo (1) como denominador. El histórico San Pedro 2023–2026
 es orientativo y no reemplaza esta escala. Extender el horizonte no modifica
 el porcentaje pasado, salvo redondeo numérico. Se exportan los indicadores
 `Normalizacion_Disponible` y `Normalizacion_Motivo`.
@@ -374,4 +390,4 @@ actualizados. La aplicación ahora recarga sus módulos en orden de dependencia
 cuando cambia la firma del código y renueva el modelo en caché con esa revisión.
 Los cambios normales de fecha no recargan los módulos ni borran los conteos.
 Se conserva la normalización causal de San Pedro como fracción del reservorio
-inicial y su referencia local exclusiva de San Pedro 2025 y 2026.
+inicial y su referencia local exclusiva de San Pedro 2023, 2024, 2025 y 2026.
