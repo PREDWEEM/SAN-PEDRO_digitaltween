@@ -70,7 +70,7 @@ conteos en plantas/m² de San Pedro aportados por el usuario (`valida2023.xlsx`,
 `san_pedro_2023_2024_source.json`). Ninguna serie tiene un cero inicial: cada curva
 empieza en su primer conteo y no certifica ausencia previa de emergencia. Su cierre
 se infiere de los ceros finales. La meteorología recibida (`meteo2023.xlsx`,
-`meteo2024.xlsx`; estación no informada) no se incorpora. 2023 y 2024 no participan
+`meteo2024.xlsx`; estación SIGA–INTA A872890 según el usuario, no contrastada con SIGA) se conserva con su hash, sin uso en el motor ni en la calibración. 2023 y 2024 no participan
 en la calibración del motor ni en el ajuste de la capa 2026: son contexto descriptivo
 y no son evidencia independiente de desempeño. El perfil de calibración conserva sus
 parámetros y su RMSE; sólo cambia el fingerprint del modelo, que incluye los nuevos

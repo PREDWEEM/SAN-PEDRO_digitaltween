@@ -7,7 +7,7 @@
   "complete_seasons_basis": "2025 y 2026: el usuario las declara completas el 20/09/2026. 2023 y 2024: series anuales aportadas el 07/10/2026 que terminan en cero; cierre inferido de esos ceros finales, no declarado expresamente.",
   "provenance_2023_2024": {
     "file": "data/reference/san_pedro_2023_2024_source.json",
-    "sha256": "022c2dd6c55757b4b82692fdbcf572ebaa02aea25adb44f8fd552159280f38f0"
+    "sha256": "79f38825648d0d0d5aa3e0fe2b4549768815988c33a5bcab064a40289313218a"
   },
   "bands": "mínimo y máximo de las campañas disponibles; no intervalos de confianza",
   "campaigns": [
