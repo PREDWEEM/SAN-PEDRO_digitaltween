@@ -136,7 +136,7 @@ def build_reference(output_dir=None):
         "limitations": [
             "Cuatro campañas describen variación observada, sin estimar probabilidades robustas.",
             "La referencia 2025 proviene de un procesamiento previo; 2023, 2024 y 2026 conservan acumulados de conteos por intervalo. La comparación es descriptiva.",
-            "2023 y 2024 no tienen cero inicial: sus curvas empiezan en el primer conteo (14/04/2023 y 16/03/2024) y no certifican ausencia previa. La mediana de una fecha sólo usa las campañas con dato ese día.",
+            "2023 y 2024 no tienen cero inicial: sus curvas empiezan en el primer conteo (14/04/2023 y 16/03/2024) y no certifican ausencia previa. Antes de su primer conteo entran en la mediana con ese conteo como cota superior (por ser acumulados no pueden superarlo); mínimo y máximo usan sólo valores observados.",
             "No se imputan observaciones nuevas: el valor uno se mantiene tras el cierre declarado de cada campaña.",
             "La exclusión de curvas cerradas después del corte evita mostrar datos futuros. Las revisiones retrospectivas y el motor calibrado con 2025–2026 no constituyen pronósticos históricos independientes.",
         ],

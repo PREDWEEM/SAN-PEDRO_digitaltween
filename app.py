@@ -580,7 +580,7 @@ with tab_state:
             "empieza en su primer conteo y antes de esa fecha queda desconocida. "
             "2025: únicamente la curva San Pedro 2025 conservada en el clasificador original. "
             "2026: acumulados de los 12 conteos del 01/02 al 15/07, interpolados entre muestreos. "
-            "Cada día la mediana usa sólo las campañas con dato (columna N_Campanas_Dia), con igual peso. "
+            "Antes de su primer conteo, 2023 y 2024 entran en la mediana con ese conteo como tope (no pueden superarlo; columna Progreso_Mediano_Cota_Inferior usa 0); mínimo y máximo usan sólo valores observados (N_Campanas_Dia). Igual peso por campaña. "
             "No se agregan conteos tras el cierre ni se transfieren totales como densidad del lote."
         )
         st.dataframe(seasonal_reference, hide_index=True, width="stretch")

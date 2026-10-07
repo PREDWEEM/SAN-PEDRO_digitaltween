@@ -54,10 +54,21 @@ def test_complete_campaigns_preserve_their_sources_and_equal_weight():
     np.testing.assert_allclose(allfour.Progreso_Mediano, allfour[columns].median(axis=1))
     np.testing.assert_allclose(allfour.Progreso_Min, allfour[columns].min(axis=1))
     np.testing.assert_allclose(allfour.Progreso_Max, allfour[columns].max(axis=1))
-    # Antes del 01/02 sólo 2024 (desde el 16/03) y 2025 aportan; no se rellena con ceros.
+    # Antes de su primer conteo, 2023 y 2024 no superan la fracción de ese conteo:
+    # entran en la mediana con ese tope (cota superior) y con 0 (cota inferior).
     january = reference.iloc[:31]
     assert january.N_Campanas_Dia.eq(1).all()
-    np.testing.assert_allclose(january.Progreso_Mediano, january.Progreso_2025)
+    assert january.Progreso_Mediano_Cota_Inferior.eq(0).all()
+    first_2024 = reference.Progreso_2024.dropna().iloc[0]
+    np.testing.assert_allclose(january.Progreso_Mediano, first_2024)
+    assert (reference.Progreso_Mediano >= reference.Progreso_Mediano_Cota_Inferior - 1e-15).all()
+    # Desde que las cuatro tienen dato la mediana es la observada y no hay cota.
+    np.testing.assert_allclose(allfour.Progreso_Mediano_Cota_Inferior, allfour.Progreso_Mediano)
+    # Entrar 2023 (14/04) y 2024 (16/03) no genera caídas: el pool es continuo.
+    assert reference.Progreso_Mediano.diff().dropna().ge(0).all()
+    entry = pd.Timestamp("2023-04-14").dayofyear - 1
+    before = reference.Progreso_Mediano.iloc[entry - 1]
+    assert abs(reference.Progreso_Mediano.iloc[entry] - before) < .03
     assert reference.loc[reference.Julian_days.eq(70), "N_Campanas_Dia"].iloc[0] == 2
 
 
@@ -206,30 +217,20 @@ def test_local_pool_rejects_wrong_site_source_or_duplicate_campaign(tmp_path, fa
         load_seasonal_reference(tmp_path / SOURCE.name, as_of="2027-05-05")
 
 
-def test_historical_flow_is_mean_of_campaigns_with_data_on_both_days():
+def test_historical_flow_is_derivative_of_the_continuous_pool():
     from predweem_twin.flows import annual_historical_reference
     reference = load_seasonal_reference(SOURCE, as_of="2027-05-05")
     annual = annual_historical_reference(reference, "2027-05-05")
-    campaigns = [f"Progreso_{year}" for year in (2023, 2024, 2025, 2026)]
-    daily = annual[campaigns].diff()
-    np.testing.assert_allclose(annual.Flujo_Diario.iloc[1:], daily.mean(axis=1, skipna=True).clip(lower=0).iloc[1:],
-                               atol=1e-14)
-    # Un conteo inicial no nulo no crea flujo previo ni un salto en el pool:
-    # el día de entrada de 2023 el flujo sólo depende de las otras tres campañas.
+    assert annual.Flujo_Diario.sum() == pytest.approx(1)
+    np.testing.assert_allclose(annual.Flujo_Diario.cumsum(), annual.Progreso_Mediano, atol=1e-12)
+    # El día de entrada de una campaña no concentra un pico artificial de flujo.
     entry = annual.index[annual.Fecha.eq("2027-04-14")][0]
-    others = daily.loc[entry, ["Progreso_2024", "Progreso_2025", "Progreso_2026"]].mean()
-    assert np.isnan(daily.loc[entry, "Progreso_2023"])
-    assert annual.Flujo_Diario.loc[entry] == pytest.approx(max(others, 0))
-    # Con las dos campañas 2025–2026 equivale a la derivada de su mediana.
+    assert annual.Flujo_Diario.loc[entry] < 2 * annual.Flujo_Diario.loc[entry - 7:entry - 1].max()
+    # Sin campañas censuradas el pool es la mediana observada, como antes.
     pair = reference[["Julian_days", "Progreso_2025", "Progreso_2026"]].copy()
     pair["Progreso_Mediano"] = pair[["Progreso_2025", "Progreso_2026"]].median(axis=1)
     pair["Campanas_Anos"] = "2025, 2026"
     two = annual_historical_reference(pair, "2027-05-05")
-    paired = two.loc[two.Fecha.ge("2027-02-01")]
-    np.testing.assert_allclose(paired.Flujo_Diario,
-                               (paired.Progreso_2025.diff().fillna(0) + paired.Progreso_2026.diff().fillna(0)).div(2),
-                               atol=1e-14)
-    assert two.Flujo_Diario.sum() == pytest.approx(1)
     np.testing.assert_allclose(two.Flujo_Diario.cumsum(), two.Progreso_Mediano)
 
 

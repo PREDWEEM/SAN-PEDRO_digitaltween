@@ -117,8 +117,8 @@ disponible de cada una:
 
 2025 y 2026 se aceptan como completas por la declaración del usuario del 20/09/2026.
 No se agregan conteos posteriores al cierre; después de él se mantiene la referencia
-acumulada en 1. Cada campaña tiene el mismo peso: la mediana de un día usa sólo las
-campañas con dato esa fecha (`N_Campanas_Dia`). El mínimo y máximo describen los
+acumulada en 1. Cada campaña tiene el mismo peso; `N_Campanas_Dia` cuenta las campañas con
+dato observado esa fecha (ver más abajo el tratamiento de 2023 y 2024 antes de su primer conteo). El mínimo y máximo describen los
 años disponibles y **no son intervalos de confianza**. Sólo se muestran campañas
 cuyo último conteo es anterior o igual al corte. Se conservan las exclusiones de 2010
 y 2015. La alineación es por mes/día, con tratamiento explícito del 29 de febrero.
@@ -130,13 +130,24 @@ pero sus otras curvas no participan del histórico mostrado ni del indicador sem
 
 Los gráficos muestran una sola referencia **Pool histórico · orientativo**, sin
 curvas individuales por año. Tanto el flujo como el acumulado provienen de ese
-mismo pool, con una salvedad: el acumulado es la mediana de las campañas con dato
-y el flujo es el **promedio de los flujos diarios de las campañas con dato en ambos
-días consecutivos**. Así, una campaña sin cero inicial (2023, 2024) entra en su
-primer conteo sin crear un salto en el pool; con 2025 y 2026 equivale a la derivada
-de la mediana, pero con más campañas el flujo no suma 1 ni sigue a la mediana.
-El máximo semanal histórico (indicador de intensidad) no cambia con 2023 y 2024:
-la semana pico sigue siendo la de febrero (15/02; 19,2 % para el eje anual completo).
+mismo pool: el flujo es la diferencia diaria de la mediana acumulada.
+
+**Campañas sin cero inicial y continuidad del pool.** Antes de su primer conteo,
+2023 y 2024 no son "desconocidas": por ser un acumulado, no pueden superar la
+fracción de ese conteo (2023: 17,5 %; 2024: 1,3 %). En la mediana se las incluye
+antes de ese conteo con ese valor tope (**cota superior**, sin inventar ausencia de
+emergencia); la columna `Progreso_Mediano_Cota_Inferior` usa 0 (diferencia máxima
+de 8,8 puntos, sólo antes del 14/04). Una versión anterior las excluía hasta su
+primer conteo y producía una **caída brusca de la curva** (-19 puntos) el 14/04,
+porque la composición del pool cambiaba. Ahora la mediana es continua y no
+decreciente (el anclaje sólo actúa en el 01/02, -0,6 puntos, cuando 2026 entra en
+cero). El mínimo y el máximo siguen usando sólo valores observados.
+
+Consecuencia: 2023 y 2024 muestran que antes de mediados de marzo ya había emergido
+muy poco, por lo que la mediana de febrero–abril baja respecto de 2025–2026 solas.
+El máximo semanal histórico (indicador de intensidad) también cambia: 14,0 % del
+total con las cuatro campañas (semana del 12/04; antes 19,2 %, semana del 15/02),
+14,5 % al 15/07/2026 (antes 17,75 %) y 23,9 % al 05/05/2026 con 2023–2025 (antes 17,9 %).
 El detalle del rango, procedencia y descarga está bajo los gráficos y las
 campañas utilizadas y excluidas se identifican en Trazabilidad.
 
