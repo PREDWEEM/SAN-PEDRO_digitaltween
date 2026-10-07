@@ -48,9 +48,11 @@
       "weather_columns": "Fecha, TMAX, TMIN (°C), Prec (mm); diaria, sin huecos ni duplicados"
     }
   },
-  "weather_note": "La meteorología (Fecha, Tmax, Tmin, Prec) se conserva como archivo fijo con su hash, pero NO es usada por el pool ni por el motor. No se informó la estación ni la fuente, por lo que no se la mezcla con SIGA A872890 ni se usa para calibrar. Termina antes del último conteo de cada año (31/08/2023 y 30/09/2024).",
+  "weather_note": "La meteorología (Fecha, Tmax, Tmin, Prec) corresponde, según el usuario, a la estación de San Pedro; no se informó código ni fuente, por lo que no se la asimila sin verificar a SIGA A872890 ni se la usa para calibrar. Se conserva como archivo fijo con su hash y NO es usada por el pool ni por el motor. Termina antes del último conteo de cada año (31/08/2023 y 30/09/2024).",
   "no_initial_zero": "Ninguna de las dos series incluye un conteo en cero antes del primero. El primer conteo (2023: 340 plantas/m² el 14/04; 2024: 87 el 16/03) no delimita su intervalo; no se infiere ausencia de emergencia anterior.",
   "completeness": "Ambas series terminan con conteos en cero (2023: 15/08 al 01/10; 2024: 17/10, tras valores marginales de 7–27 en agosto–septiembre). El cierre se infiere de esos ceros finales; el usuario no lo declaró expresamente.",
-  "station_not_specified": true,
-  "weather_used_by_model": false
+  "station_not_specified": false,
+  "weather_used_by_model": false,
+  "weather_station_declared_by_user": "Estación San Pedro (declaración del usuario, 07/10/2026).",
+  "weather_station_code": "no informado; no se verificó que sea la SIGA–INTA A872890 usada en 2026"
 }
