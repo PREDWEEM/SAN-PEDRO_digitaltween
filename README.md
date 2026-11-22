@@ -403,3 +403,19 @@ cuando cambia la firma del código y renueva el modelo en caché con esa revisi�
 Los cambios normales de fecha no recargan los módulos ni borran los conteos.
 Se conserva la normalización causal de San Pedro como fracción del reservorio
 inicial y su referencia local exclusiva de San Pedro 2023, 2024, 2025 y 2026.
+
+## Campaña 2027
+
+La campaña meteorológica se elige por el año calendario de Argentina (`campaign.py`):
+el **1 de enero de 2027** la actualización programada pasa sola a 2027 y escribe
+archivos propios, sin modificar la serie 2026:
+
+- `meteo_daily_2027.csv` (serie operativa)
+- `data/estado_actualizacion_meteo_2027.json` (estado)
+- `data/siga_san_pedro_observado_2027.csv` (caché SIGA)
+
+Cada campaña va del 1 de enero al 1 de octubre inclusive. El 1 de enero sólo hay pronóstico; durante los primeros diez días, si SIGA todavía no publicó el año nuevo, las fechas vencidas se completan con ECMWF IFS provisional.
+La aplicación incluye un selector de campaña; abre la campaña actual en cuanto
+tiene meteorología y, hasta entonces, la última campaña con datos.
+Para regenerar una campaña concreta: `python actualizar_meteo_san_pedro_robusto.py --year 2026`.
+El actualizador rechaza una campaña que aún no comenzó.
